@@ -1,10 +1,10 @@
-﻿namespace PhoneBook.DataAccess.Models;
+﻿namespace PhoneBook.Model;
 
 public class PhoneNumber
 {
     public int Id { get; set; }
 
-    public string Phone { get; set; }
+    public required string Phone { get; set; }
 
     public PhoneNumberType Type { get; set; }
 

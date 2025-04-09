@@ -1,6 +1,6 @@
-﻿namespace PhoneBook.Contracts.Dto;
+﻿namespace PhoneBook.Model;
 
-public class ContactDto
+public class Contact
 {
     public int Id { get; set; }
 
@@ -10,5 +10,5 @@ public class ContactDto
 
     public required string MiddleName { get; set; }
 
-    public required List<PhoneNumberDto> PhoneNumbers { get; set; }
+    public virtual ICollection<PhoneNumber> PhoneNumbers { get; set; } = new List<PhoneNumber>();
 }

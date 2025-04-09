@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PhoneBook.DataAccess;
-using PhoneBook.DataAccess.Models;
+using PhoneBook.Model;
 
 namespace PhoneBook;
 
@@ -17,14 +17,17 @@ public class DbInitializer
     {
         _dbContext.Database.Migrate();
 
-        if (!_dbContext.Contacts.Any())
+        if (_dbContext.Contacts.Any())
         {
-            _dbContext.Add(new Contact
-            {
-                FirstName = "Иван",
-                LastName = "Иванов",
-                MiddleName = "Иванович",
-                PhoneNumbers = new List<PhoneNumber>
+            return;
+        }
+
+        _dbContext.Contacts.Add(new Contact
+        {
+            FirstName = "Иван",
+            LastName = "Иванов",
+            MiddleName = "Иванович",
+            PhoneNumbers = new List<PhoneNumber>
                 {
                     new PhoneNumber
                     {
@@ -32,9 +35,8 @@ public class DbInitializer
                         Type = PhoneNumberType.Mobile
                     }
                 }
-            });
+        });
 
-            _dbContext.SaveChanges();
-        }
+        _dbContext.SaveChanges();
     }
 }

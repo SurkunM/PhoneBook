@@ -1,41 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PhoneBook.Contacts.Dto;
-using PhoneBook.DataAccess;
+﻿using PhoneBook.Contracts.Dto;
+using PhoneBook.Contracts.Repositories;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
 public class GetContactsHandler
 {
-    private readonly PhoneBookDbContext _dbContext;
+    private readonly IContactsRepository _contactsRepository;
 
-    public GetContactsHandler(PhoneBookDbContext dbContext)
+    public GetContactsHandler(IContactsRepository contactsRepository)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
     public List<ContactDto> Handle()
     {
-        return _dbContext.Contacts
-            .AsNoTracking()
-            .Select(c => new ContactDto
-            {
-                Id = c.Id,
-                FirstName = c.FirstName,
-                LastName = c.LastName,
-                MiddleName = c.MiddleName,
-                PhoneNumbers = c.PhoneNumbers
-                    .Select(p => new PhoneNumberDto
-                    {
-                        Id = p.Id,
-                        Phone = p.Phone,
-                        Type = p.Type
-                    })
-                    .OrderBy(p => p.Phone)
-                    .ToList()
-            })
-            .OrderBy(c => c.LastName)
-            .ThenBy(c => c.FirstName)
-            .ThenBy(c => c.MiddleName)
-            .ToList();
+        return _contactsRepository.GetContacts();
     }
 }

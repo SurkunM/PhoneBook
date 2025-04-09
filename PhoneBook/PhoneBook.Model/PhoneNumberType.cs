@@ -1,4 +1,4 @@
-﻿namespace PhoneBook.DataAccess.Models;
+﻿namespace PhoneBook.Model;
 
 public enum PhoneNumberType
 {

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PhoneBook.DataAccess.Models;
+using PhoneBook.Model;
 
 namespace PhoneBook.DataAccess;
 
@@ -13,8 +13,6 @@ public class PhoneBookDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<Contact>(b =>
         {
             b.Property(c => c.FirstName).IsRequired().HasMaxLength(50);

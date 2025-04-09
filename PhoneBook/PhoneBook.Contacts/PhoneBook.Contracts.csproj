@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PhoneBook.DataAccess\PhoneBook.DataAccess.csproj" />
+    <ProjectReference Include="..\PhoneBook.Model\PhoneBook.Model.csproj" />
   </ItemGroup>
 
 </Project>

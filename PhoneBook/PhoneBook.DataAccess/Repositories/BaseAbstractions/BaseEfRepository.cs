@@ -1,0 +1,43 @@
+﻿using Microsoft.EntityFrameworkCore;
+using PhoneBook.Contracts.Repositories;
+
+namespace PhoneBook.DataAccess.Repositories.BaseAbstractions;
+
+public class BaseEfRepository<T> : IRepository<T> where T : class
+{
+    protected DbContext _dbContext;
+
+    protected DbSet<T> _dbSet;
+
+    public BaseEfRepository(DbContext dbContext)
+    {
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _dbSet = _dbContext.Set<T>();
+    }
+
+    public void Create(T entity)
+    {
+        _dbSet.Add(entity);
+    }
+
+    public void Delete(T entity)
+    {
+        if (_dbContext.Entry(entity).State == EntityState.Detached)
+        {
+            _dbSet.Attach(entity);
+        }
+
+        _dbSet.Remove(entity);
+    }
+
+    public void Save()
+    {
+        _dbContext.SaveChanges();
+    }
+
+    public void Update(T entity)
+    {
+        _dbSet.Attach(entity);
+        _dbContext.Entry(entity).State = EntityState.Modified;
+    }
+}

@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PhoneBook.Contacts\PhoneBook.Contracts.csproj" />
-    <ProjectReference Include="..\PhoneBook.DataAccess\PhoneBook.DataAccess.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -24,7 +24,7 @@ namespace PhoneBook.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("PhoneBook.DataAccess.Models.Contact", b =>
+            modelBuilder.Entity("PhoneBook.Model.Contact", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,15 +43,16 @@ namespace PhoneBook.DataAccess.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("MiddleName")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contact");
+                    b.ToTable("Contacts");
                 });
 
-            modelBuilder.Entity("PhoneBook.DataAccess.Models.PhoneNumber", b =>
+            modelBuilder.Entity("PhoneBook.Model.PhoneNumber", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,12 +75,12 @@ namespace PhoneBook.DataAccess.Migrations
 
                     b.HasIndex("ContactId");
 
-                    b.ToTable("PhoneNumber");
+                    b.ToTable("PhoneNumbers");
                 });
 
-            modelBuilder.Entity("PhoneBook.DataAccess.Models.PhoneNumber", b =>
+            modelBuilder.Entity("PhoneBook.Model.PhoneNumber", b =>
                 {
-                    b.HasOne("PhoneBook.DataAccess.Models.Contact", "Contact")
+                    b.HasOne("PhoneBook.Model.Contact", "Contact")
                         .WithMany("PhoneNumbers")
                         .HasForeignKey("ContactId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -88,7 +89,7 @@ namespace PhoneBook.DataAccess.Migrations
                     b.Navigation("Contact");
                 });
 
-            modelBuilder.Entity("PhoneBook.DataAccess.Models.Contact", b =>
+            modelBuilder.Entity("PhoneBook.Model.Contact", b =>
                 {
                     b.Navigation("PhoneNumbers");
                 });

@@ -1,6 +1,6 @@
-﻿using PhoneBook.DataAccess.Models;
+﻿using PhoneBook.Model;
 
-namespace PhoneBook.Contacts.Dto;
+namespace PhoneBook.Contracts.Dto;
 
 public class PhoneNumberDto
 {
