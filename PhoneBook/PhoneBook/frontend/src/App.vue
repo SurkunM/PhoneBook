@@ -1,30 +1,29 @@
 <template>
-    <nav>
-        <router-link to="/">Home</router-link> |
-        <router-link to="/about">About</router-link>
-    </nav>
-    <router-view />
+    <v-card>
+        <v-layout>
+            <v-navigation-drawer floating
+                                 permanent
+                                 color="grey-darken-3">
+                <v-list density="compact" nav>
+                    <h1 class="mb-4">Телефонная книга</h1>
+                    <v-list-item prepend-icon="mdi-account-multiple" to="/contacts" title="Контакты"></v-list-item>
+                    <v-list-item prepend-icon="mdi-account-plus" to="/create" title="Добавить"></v-list-item>
+                </v-list>
+            </v-navigation-drawer>
+
+            <v-main>
+                <router-view />
+            </v-main>
+        </v-layout>
+    </v-card>
 </template>
 
-<style lang="scss">
-    #app {
-        font-family: Avenir, Helvetica, Arial, sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-align: center;
-        color: #2c3e50;
-    }
+<!--<script>
+    export default {
+        name: "App",
 
-    nav {
-        padding: 30px;
+        components: {
 
-        a {
-            font-weight: bold;
-            color: #2c3e50;
-
-            &.router-link-exact-active {
-                color: #42b983;
-            }
         }
-    }
-</style>
+    };
+</script>-->
