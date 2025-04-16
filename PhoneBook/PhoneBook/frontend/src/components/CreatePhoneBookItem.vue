@@ -3,24 +3,24 @@
         <h2 class="me-4">
             <v-icon icon="mdi-account-plus" size="small"></v-icon>
             Новый контакт
-        </h2>        
+        </h2>
     </v-card-title>
 
     <form @submit.prevent="submitForm">
-        <v-text-field v-model="formFields.name"
-                      :counter="10"
-                      :error-messages="errors.name"
-                      label="Имя"></v-text-field>
+        <v-text-field v-model.trim="contact.firstName"
+                      :error-messages="errors.firstName"
+                      label="Имя">
+        </v-text-field>
 
-        <v-text-field v-model="formFields.lastName"
-                      :counter="10"
+        <v-text-field v-model.trim="contact.lastName"
                       :error-messages="errors.lastName"
-                      label="Фамилия"></v-text-field>
+                      label="Фамилия">
+        </v-text-field>
 
-        <v-text-field v-model="formFields.phone"
-                      :counter="7"
+        <v-text-field v-model.trim="contact.phone"
                       :error-messages="errors.phone"
-                      label="Телефон"></v-text-field>
+                      label="Телефон">
+        </v-text-field>
 
         <v-btn class="me-4" type="submit">Сохранить</v-btn>
 
@@ -32,52 +32,78 @@
     export default {
         data() {
             return {
-                items: ['Item 1', 'Item 2', 'Item 3', 'Item 4'],
-                formFields: {
-                    name: '',
+                id: 5,
+
+                contact: {
+                    firstName: "",
                     lastName: "",
-                    phone: ''
+                    phone: ""
                 },
                 errors: {
-                    name: '',
+                    firstName: "",
                     lastName: "",
-                    phone: ''
+                    phone: ""
                 }
             }
         },
 
         methods: {
-            validateName(value) {
-                if (value?.length >= 2) return true
-                return 'Name needs to be at least 2 characters.'
+            validateFirstName(firstName) {
+                if (firstName?.length > 0) {
+                    return true;
+                }
+
+                return "Заполните поле Имя";
             },
 
-            validatePhone(value) {
-                if (/^[0-9-]{7,}$/.test(value)) return true
-                return 'Phone number needs to be at least 7 digits.'
+            validateLastName(lastName) {
+                if (lastName?.length >= 2) {
+                    return true;
+                }
+
+                return "Заполните поле Фамилия";
             },
 
-            validateLastName(value) {
-                if (value?.length >= 2) return true
-                return 'Name needs to be at least 2 characters.'
+            validatePhone(phone) {
+                if (/^[0-9-]{7,}$/.test(phone)) {
+                    return true;
+                }
+
+                return "Неверный формат для поля телефон";
             },
 
             submitForm() {
-                this.errors.name = this.validateName(this.formFields.name)
-                this.errors.phone = this.validatePhone(this.formFields.phone)
-                this.errors.lastName = this.validateLastName(this.formFields.email)
+                this.errors.firstName = this.validateFirstName(this.contact.firstName);
+                this.errors.lastName = this.validateLastName(this.contact.lastName);
+                this.errors.phone = this.validatePhone(this.contact.phone);
+
+                this.id++;
+
+                const cratedContact = {
+                    id: this.id,
+                    firstName: this.contact.firstName,
+                    lastName: this.contact.lastName,
+                    phone: this.contact.phone,
+
+                    isChecked: false,
+                    isShown: true
+                };
+
+                this.$emit('create', cratedContact);
+                //this.resetForm();
+                alert("asd");
             },
 
             resetForm() {
-                this.formFields = {
-                    name: '',
-                    lastName: '',
-                    phone: ''
+                this.contact = {
+                    firstName: "",
+                    lastName: "",
+                    phone: ""
                 }
                 this.errors = {
-                    name: '',
-                    lastName: '',
-                    phone: ''
+                    firstName: "",
+                    lastName: "",
+                    phone: ""
                 }
             }
         }

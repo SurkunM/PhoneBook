@@ -3,7 +3,7 @@ import PhoneBook from "../components/PhoneBook.vue"
 
 const routes = [
     {
-        path: "/contacts",
+        path: "/",
         name: "contacts",
         component: PhoneBook
     },
