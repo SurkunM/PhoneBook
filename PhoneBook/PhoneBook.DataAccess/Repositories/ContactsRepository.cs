@@ -18,21 +18,22 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
             {
                 Id = c.Id,
                 FirstName = c.FirstName,
-                LastName = c.LastName,
-                MiddleName = c.MiddleName,
-                PhoneNumbers = c.PhoneNumbers
-                    .Select(p => new PhoneNumberDto
-                    {
-                        Id = p.Id,
-                        Phone = p.Phone,
-                        Type = p.Type
-                    })
-                    .OrderBy(p => p.Phone)
-                    .ToList()
+                LastName = c.LastName,                
+                Phone = c.Phone,
             })
             .OrderBy(c => c.LastName)
-            .ThenBy(c => c.FirstName)
-            .ThenBy(c => c.MiddleName)
+            .ThenBy(c => c.FirstName)            
             .ToList();
+    }
+
+    public void CreateContact(ContactDto contactDto)
+    {
+        _dbSet.Add(new Contact
+        {
+            Id = contactDto.Id,
+            FirstName = contactDto.FirstName,
+            LastName = contactDto.LastName,
+            Phone = contactDto.Phone
+        });
     }
 }

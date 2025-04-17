@@ -11,7 +11,7 @@ using PhoneBook.DataAccess;
 namespace PhoneBook.DataAccess.Migrations
 {
     [DbContext(typeof(PhoneBookDbContext))]
-    [Migration("20250406041532_Initial")]
+    [Migration("20250417084145_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -45,7 +45,7 @@ namespace PhoneBook.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("MiddleName")
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -53,48 +53,6 @@ namespace PhoneBook.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Contacts");
-                });
-
-            modelBuilder.Entity("PhoneBook.Model.PhoneNumber", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ContactId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContactId");
-
-                    b.ToTable("PhoneNumbers");
-                });
-
-            modelBuilder.Entity("PhoneBook.Model.PhoneNumber", b =>
-                {
-                    b.HasOne("PhoneBook.Model.Contact", "Contact")
-                        .WithMany("PhoneNumbers")
-                        .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contact");
-                });
-
-            modelBuilder.Entity("PhoneBook.Model.Contact", b =>
-                {
-                    b.Navigation("PhoneNumbers");
                 });
 #pragma warning restore 612, 618
         }

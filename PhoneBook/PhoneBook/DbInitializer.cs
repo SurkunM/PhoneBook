@@ -26,15 +26,14 @@ public class DbInitializer
         {
             FirstName = "Иван",
             LastName = "Иванов",
-            MiddleName = "Иванович",
-            PhoneNumbers = new List<PhoneNumber>
-                {
-                    new PhoneNumber
-                    {
-                        Phone = "9139990000",
-                        Type = PhoneNumberType.Mobile
-                    }
-                }
+            Phone = "9139990000"
+        });
+
+        _dbContext.Contacts.Add(new Contact
+        {
+            FirstName = "Сергей",
+            LastName = "Сергеев",
+            Phone = "9139991111"
         });
 
         _dbContext.SaveChanges();

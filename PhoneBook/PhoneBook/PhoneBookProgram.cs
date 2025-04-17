@@ -23,6 +23,7 @@ public class PhoneBookProgram
 
         builder.Services.AddTransient<DbInitializer>();
         builder.Services.AddTransient<GetContactsHandler>();
+        builder.Services.AddTransient<CreateContactHandler>();
         builder.Services.AddTransient<IContactsRepository, ContactsRepository>();
 
         var app = builder.Build();

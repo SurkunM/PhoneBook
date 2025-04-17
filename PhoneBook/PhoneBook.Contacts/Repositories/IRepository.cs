@@ -4,7 +4,6 @@ public interface IRepository
 {
 }
 
-
 public interface IRepository<T> : IRepository
 {
     void Create(T entity);

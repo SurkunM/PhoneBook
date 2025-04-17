@@ -7,10 +7,6 @@ export default createStore({
         contacts: []
     },
 
-    getters: {
-
-    },
-
     mutations: {
         setIsLoading(state, value) {
             state.isLoading = value;
@@ -18,6 +14,10 @@ export default createStore({
 
         setContacts(state, contacts) {
             state.contacts = contacts;
+        },
+
+        addContact(state, contact) {
+            state.contacts.push(contact);
         }
     },
 
@@ -35,10 +35,25 @@ export default createStore({
                 .then(() => {
                     commit("setIsLoading", false);
                 });
+        },
+
+        createContact({ commit }, {contact}) {
+            commit("setIsLoading", true);
+
+            return axios.post("/api/PhoneBook/CreateContact", contact)
+                .then(response => {
+                    commit("addContact", response.data)
+                })
+                .catch(() => {
+                    alert("Не удалось создать контакт");
+                })
+                .then(() => {
+                    commit("setIsLoading", false);
+                });
         }
     },
 
     modules: {
 
     }
-})
+});

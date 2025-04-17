@@ -61,22 +61,18 @@
         </template>
 
         <template>
+            <editing-modal ref="contactEditingModal" @save="saveEditing"></editing-modal>
+
+        </template>
+        <template>
             <all-delete-modal ref="confirmAllDeleteModal" @delete="deleteAllSelected"></all-delete-modal>
         </template>
-
-        <template>
-            <editing-modal ref="contactEditingModal" @save="saveEditing"></editing-modal>
-        </template>
-
-        <template>
-            <create-phone-book-item @create="addContact"></create-phone-book-item>
-        </template>
+        
     </v-card>
 </template>
 
 <script>
     import PhoneBookItem from "./PhoneBookItem.vue";
-    import CreatePhoneBookItem from "./CreatePhoneBookItem.vue";
 
     import SingleDeleteModal from "./SingleDeleteModal.vue";
     import AllDeleteModal from "./AllDeleteModal.vue";
@@ -84,7 +80,7 @@
 
     export default {
         components: {
-            CreatePhoneBookItem,
+            
             PhoneBookItem,
             EditingModal,
 
@@ -93,9 +89,9 @@
         },
 
         data() {
-            return {
-                selectedContact: null,
+            return {             
                 selected: [],
+                selectedContact: null,
                 term: "",
 
                 headers: [
@@ -105,39 +101,23 @@
                     { value: "firstName", title: "Имя" },
                     { value: "phone", title: "Телефон" },
                     { value: "actions", title: "", sortable: false }
-                ],
-
-                contacts: [
-                    {
-                        id: 1,
-                        lastName: 'Иванов',
-                        firstName: "Иван",
-                        phone: "+7 (987) 654-32-10"
-                    },
-                    {
-                        id: 2,
-                        lastName: 'Петрова',
-                        firstName: "Анна",
-                        phone: "+7 (987) 654-32-11"
-                    },
-                    {
-                        id: 3,
-                        lastName: 'Смирнова',
-                        firstName: "Елена",
-                        phone: "+7 (987) 654-32-12"
-                    }
                 ]
             };
+        },
+
+        created() {
+            this.$store.dispatch("loadContacts");
+        },
+
+        computed: {
+            contacts() {
+                return this.$store.state.contacts;
+            }
         },
 
         methods: {
             search() {
                 alert("search");
-            },
-
-            addContact(contact) {
-                this.contacts.push(contact);
-                alert("Create");
             },
 
             showAllDeleteModal() {

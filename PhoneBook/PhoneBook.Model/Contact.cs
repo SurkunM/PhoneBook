@@ -8,7 +8,5 @@ public class Contact
 
     public required string LastName { get; set; }
 
-    public required string MiddleName { get; set; }
-
-    public virtual ICollection<PhoneNumber> PhoneNumbers { get; set; } = new List<PhoneNumber>();
+    public required string Phone { get; set; }
 }

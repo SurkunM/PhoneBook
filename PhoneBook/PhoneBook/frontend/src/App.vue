@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card id="app">
         <v-layout>
             <v-navigation-drawer floating
                                  permanent
@@ -17,13 +17,3 @@
         </v-layout>
     </v-card>
 </template>
-
-<!--<script>
-    export default {
-        name: "App",
-
-        components: {
-
-        }
-    };
-</script>-->

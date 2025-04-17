@@ -39,6 +39,7 @@
                     lastName: "",
                     phone: ""
                 },
+
                 errors: {
                     firstName: "",
                     lastName: "",
@@ -57,7 +58,7 @@
             },
 
             validateLastName(lastName) {
-                if (lastName?.length >= 2) {
+                if (lastName?.length >= 0) {
                     return true;
                 }
 
@@ -65,7 +66,7 @@
             },
 
             validatePhone(phone) {
-                if (/^[0-9-]{7,}$/.test(phone)) {
+                if (/^[0-9-]/.test(phone)) {
                     return true;
                 }
 
@@ -79,19 +80,15 @@
 
                 this.id++;
 
-                const cratedContact = {
+                const newContact = {
                     id: this.id,
                     firstName: this.contact.firstName,
                     lastName: this.contact.lastName,
-                    phone: this.contact.phone,
-
-                    isChecked: false,
-                    isShown: true
+                    phone: this.contact.phone
                 };
 
-                this.$emit('create', cratedContact);
-                //this.resetForm();
-                alert("asd");
+                this.$store.dispatch("createContact", newContact);
+                this.resetForm();
             },
 
             resetForm() {
