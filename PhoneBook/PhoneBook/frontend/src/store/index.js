@@ -14,10 +14,6 @@ export default createStore({
 
         setContacts(state, contacts) {
             state.contacts = contacts;
-        },
-
-        addContact(state, contact) {
-            state.contacts.push(contact);
         }
     },
 
@@ -37,12 +33,12 @@ export default createStore({
                 });
         },
 
-        createContact({ commit }, {contact}) {
+        createContact({ commit }, contact) {
             commit("setIsLoading", true);
 
             return axios.post("/api/PhoneBook/CreateContact", contact)
-                .then(response => {
-                    commit("addContact", response.data)
+                .then(() => {
+                    alert("Ok. Create");
                 })
                 .catch(() => {
                     alert("Не удалось создать контакт");

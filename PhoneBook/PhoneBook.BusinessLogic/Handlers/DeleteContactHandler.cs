@@ -1,22 +1,28 @@
 ﻿using PhoneBook.Contracts.Dto;
 using PhoneBook.Contracts.Repositories;
+using PhoneBook.Model;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
-public class CreateContactHandler
+public class DeleteContactHandler
 {
     private readonly IContactsRepository _contactsRepository;
 
-    public CreateContactHandler(IContactsRepository contactsRepository)
+    public DeleteContactHandler(IContactsRepository contactsRepository)
     {
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public bool Handle(ContactDto contactDto)
+    public bool Handle(Contact contact)
     {
-        _contactsRepository.Create(contactDto.ToModel());
+        _contactsRepository.Delete(contact);
         _contactsRepository.Save();
 
         return true;
+    }
+
+    public Contact? FindContactById(int id)
+    {
+        return _contactsRepository.FindContactById(id);
     }
 }

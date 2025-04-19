@@ -7,5 +7,5 @@ public interface IContactsRepository : IRepository<Contact>
 {
     List<ContactDto> GetContacts();
 
-    public void CreateContact(ContactDto contactDto);
+    Contact? FindContactById(int id);
 }

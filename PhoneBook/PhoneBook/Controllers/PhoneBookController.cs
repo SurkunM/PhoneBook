@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PhoneBook.BusinessLogic.Handlers;
 using PhoneBook.Contracts.Dto;
-using PhoneBook.Model;
 
 namespace PhoneBook.Controllers;
 
@@ -9,24 +8,83 @@ namespace PhoneBook.Controllers;
 [Route("api/[controller]/[action]")]
 public class PhoneBookController : ControllerBase
 {
-    private readonly GetContactsHandler _getContactsHandler;
-
     private readonly CreateContactHandler _createContactHandler;
 
-    public PhoneBookController(GetContactsHandler getContactsHandler, CreateContactHandler createContactHandler)
+    private readonly GetContactsHandler _getContactsHandler;
+
+    private readonly UpdateContactHandler _updateContactHandler;
+
+    private readonly DeleteContactHandler _deleteContactHandler;
+
+    public PhoneBookController(
+        GetContactsHandler getContactsHandler, CreateContactHandler createContactHandler,
+        UpdateContactHandler updateContactHandler, DeleteContactHandler deleteContactHandler)
     {
-        _getContactsHandler = getContactsHandler ?? throw new ArgumentNullException(nameof(getContactsHandler));
         _createContactHandler = createContactHandler ?? throw new ArgumentNullException(nameof(createContactHandler));
+        _getContactsHandler = getContactsHandler ?? throw new ArgumentNullException(nameof(getContactsHandler));
+        _updateContactHandler = updateContactHandler ?? throw new ArgumentNullException(nameof(updateContactHandler));
+        _deleteContactHandler = deleteContactHandler ?? throw new ArgumentNullException(nameof(deleteContactHandler));
     }
 
+    [HttpGet]
     public List<ContactDto> GetContacts()
     {
         return _getContactsHandler.Handle();
     }
 
-
-    public void CreateContact([FromBody] ContactDto contact)
+    [HttpPost]
+    public IActionResult CreateContact(ContactDto contactDto)
     {
-        _createContactHandler.Handle(contact);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var isCreated = _createContactHandler.Handle(contactDto);
+
+        if (!isCreated)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
+        }
+
+        return Ok();
+    }
+
+    [HttpPost]
+    public IActionResult UpdateContact(ContactDto contactDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var isUpdated = _updateContactHandler.Handle(contactDto);
+
+        if (!isUpdated)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
+        }
+
+        return Ok();
+    }
+
+    [HttpDelete]
+    public IActionResult DeleteContact([FromBody] int id)
+    {
+        var contact = _deleteContactHandler.FindContactById(id);
+
+        if (contact is null)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var isDeleted = _deleteContactHandler.Handle(contact);
+
+        if (!isDeleted)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
+        }
+
+        return Ok();
     }
 }

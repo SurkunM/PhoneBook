@@ -5,11 +5,11 @@ namespace PhoneBook.DataAccess.Repositories.BaseAbstractions;
 
 public class BaseEfRepository<T> : IRepository<T> where T : class
 {
-    protected DbContext _dbContext;
+    protected PhoneBookDbContext _dbContext;
 
     protected DbSet<T> _dbSet;
 
-    public BaseEfRepository(DbContext dbContext)
+    public BaseEfRepository(PhoneBookDbContext dbContext)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _dbSet = _dbContext.Set<T>();

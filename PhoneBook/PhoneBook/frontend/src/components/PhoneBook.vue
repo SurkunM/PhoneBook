@@ -76,7 +76,7 @@
 
     import SingleDeleteModal from "./SingleDeleteModal.vue";
     import AllDeleteModal from "./AllDeleteModal.vue";
-    import EditingModal from "./EditingModal.vue"
+    import EditingModal from "./EditingModal.vue";
 
     export default {
         components: {

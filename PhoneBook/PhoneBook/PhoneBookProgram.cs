@@ -22,9 +22,12 @@ public class PhoneBookProgram
         builder.Services.AddControllersWithViews();
 
         builder.Services.AddTransient<DbInitializer>();
+        builder.Services.AddTransient<IContactsRepository, ContactsRepository>();
+
         builder.Services.AddTransient<GetContactsHandler>();
         builder.Services.AddTransient<CreateContactHandler>();
-        builder.Services.AddTransient<IContactsRepository, ContactsRepository>();
+        builder.Services.AddTransient<UpdateContactHandler>();
+        builder.Services.AddTransient<DeleteContactHandler>();
 
         var app = builder.Build();
 
@@ -46,7 +49,7 @@ public class PhoneBookProgram
 
         if (!app.Environment.IsDevelopment())
         {
-            app.UseExceptionHandler("/Home/Error");
+            app.UseExceptionHandler("/Home/Error");//TODO: Уточнить
             app.UseHsts();
         }
 

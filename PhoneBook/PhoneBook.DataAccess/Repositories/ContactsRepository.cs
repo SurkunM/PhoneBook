@@ -14,26 +14,14 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
     {
         return _dbSet
             .AsNoTracking()
-            .Select(c => new ContactDto
-            {
-                Id = c.Id,
-                FirstName = c.FirstName,
-                LastName = c.LastName,                
-                Phone = c.Phone,
-            })
+            .Select(c => c.ToDto())
             .OrderBy(c => c.LastName)
             .ThenBy(c => c.FirstName)            
             .ToList();
     }
 
-    public void CreateContact(ContactDto contactDto)
+    public Contact? FindContactById(int id)
     {
-        _dbSet.Add(new Contact
-        {
-            Id = contactDto.Id,
-            FirstName = contactDto.FirstName,
-            LastName = contactDto.LastName,
-            Phone = contactDto.Phone
-        });
+        return _dbSet.FirstOrDefault(c => c.Id == id);
     }
 }
