@@ -27,7 +27,7 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpGet]
-    public List<ContactDto> GetContacts()
+    public List<ContactDto> GetContacts()//TODO: Сделать логирование!
     {
         return _getContactsHandler.Handle();
     }
@@ -51,7 +51,7 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult UpdateContact(ContactDto contactDto)
+    public IActionResult UpdateContact(ContactDto contactDto)//TODO: Сейчас нет проверки что номер уже существует! Разобраться с валидацией
     {
         if (!ModelState.IsValid)
         {

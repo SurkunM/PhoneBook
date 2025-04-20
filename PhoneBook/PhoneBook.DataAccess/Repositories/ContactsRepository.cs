@@ -14,7 +14,12 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
     {
         return _dbSet
             .AsNoTracking()
-            .Select(c => c.ToDto())
+            .Select(c => new ContactDto { 
+                Id = c.Id,
+                FirstName = c.FirstName,
+                LastName = c.LastName,
+                Phone = c.Phone,
+            })
             .OrderBy(c => c.LastName)
             .ThenBy(c => c.FirstName)            
             .ToList();

@@ -9,7 +9,7 @@
                 </v-btn>
             </v-toolbar>
 
-            <v-form ref="form">
+            <v-form @submit.prevent="submitForm">
                 <v-card-text>
                     <v-text-field v-model.trim="editedContact.firstName"
                                   label="Имя"
@@ -29,8 +29,8 @@
 
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue lighten-1" text @click="$emit('saved', editedContact)">Сохранить</v-btn>
-                    <v-btn color="error" text @click="hide">Отменить</v-btn>
+                    <v-btn color="blue lighten-1" type="submit">Сохранить</v-btn>
+                    <v-btn color="error" @click="hide">Отменить</v-btn>
                 </v-card-actions>
             </v-form>
         </v-card>
@@ -78,9 +78,11 @@
             },
 
             submitForm() {
-                this.errors.firstName = this.checkEditingFirstName(this.editedContact.firstName)
-                this.errors.lastName = this.checkEditingLastName(this.editedContact.lastName)
-                this.errors.phone = this.checkEditingPhone(this.editedContact.phone)
+                //this.errors.firstName = this.checkEditingFirstName(this.editedContact.firstName);
+                //this.errors.lastName = this.checkEditingLastName(this.editedContact.lastName);
+                //this.errors.phone = this.checkEditingPhone(this.editedContact.phone);
+
+                this.$emit('save', this.editedContact)
             },
 
             resetErrors() {
@@ -103,6 +105,6 @@
             }
         },
 
-        emits: ["saved"]
+        emits: ["save"]
     }
 </script>

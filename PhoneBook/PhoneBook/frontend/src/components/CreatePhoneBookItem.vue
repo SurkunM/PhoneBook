@@ -32,12 +32,11 @@
     export default {
         data() {
             return {
-                id: 5,
-
                 contact: {
                     firstName: "",
                     lastName: "",
-                    phone: ""
+                    phone: "",
+                    isChecked: false
                 },
 
                 errors: {
@@ -78,16 +77,13 @@
                 this.errors.lastName = this.validateLastName(this.contact.lastName);
                 this.errors.phone = this.validatePhone(this.contact.phone);
 
-                this.id++;
-
-                const newContact = {
-                    id: this.id,
+                const createdContact = {
                     firstName: this.contact.firstName,
                     lastName: this.contact.lastName,
                     phone: this.contact.phone
                 };
 
-                this.$store.dispatch("createContact", newContact);
+                this.$store.dispatch("createContact", createdContact);
                 this.resetForm();
             },
 

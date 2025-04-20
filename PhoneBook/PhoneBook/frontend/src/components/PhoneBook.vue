@@ -29,20 +29,22 @@
                 </template>
             </v-text-field>
         </template>
-        <v-data-table v-model="selected"
-                      :headers="headers"
+        <v-data-table :headers="headers"
                       :items="contacts"
                       :item-value="id"
                       :search="term">
-
+            <!--чекбокс-->
             <template v-slot:[`header.data-table-select`]>
-                <v-checkbox hide-details class="ms-2"></v-checkbox>
+                <v-checkbox v-model="selectAll"
+                            @change="toggleAllSelect"
+                            hide-details
+                            class="ms-2">
+                </v-checkbox>
             </template>
 
             <template v-slot:[`header.actions`]>
                 <v-btn color="error"
                        text="Удалить все"
-                       :disabled="selected.length === 12"
                        @click="showAllDeleteModal">
                 </v-btn>
             </template>
@@ -67,7 +69,7 @@
         <template>
             <all-delete-modal ref="confirmAllDeleteModal" @delete="deleteAllSelected"></all-delete-modal>
         </template>
-        
+
     </v-card>
 </template>
 
@@ -80,7 +82,6 @@
 
     export default {
         components: {
-            
             PhoneBookItem,
             EditingModal,
 
@@ -89,16 +90,15 @@
         },
 
         data() {
-            return {             
-                selected: [],
+            return {
                 selectedContact: null,
                 term: "",
-
+                selectAll: false,
                 headers: [
                     { value: "data-table-select", sortable: false },
                     { value: "id", title: "№" },
-                    { value: "lastName", title: "Фамилия" },
-                    { value: "firstName", title: "Имя" },
+                    { value: "lastName", title: "Фамилия", sortable: true },
+                    { value: "firstName", title: "Имя", sortable: true },
                     { value: "phone", title: "Телефон" },
                     { value: "actions", title: "", sortable: false }
                 ]
@@ -116,6 +116,10 @@
         },
 
         methods: {
+            toggleAllSelect() {
+                this.$store.dispatch("toggleAllSelect", this.selectAll);
+            },
+
             search() {
                 alert("search");
             },
@@ -135,6 +139,17 @@
                 this.$refs.contactEditingModal.show(this.selectedContact);
             },
 
+            deleteContact() {
+                this.$store.dispatch("deleteContact", this.selectedContact.id)
+                    .then(() => {
+                        this.$store.dispatch("loadContacts");
+                        alert("Ошибка удаления в PhoneBook");
+                    })
+                    .finally(() => {
+                        this.$refs.confirmSingleDeleteModal.hide();
+                    });
+            },
+
             deleteAllSelected() {
                 this.contacts = this.contacts.filter(
                     contact => !this.selected.includes(contact)
@@ -144,16 +159,8 @@
                 this.$refs.confirmAllDeleteModal.hide();
             },
 
-            deleteContact() {
-                console.log('Контакт удалён!');
-                this.$refs.confirmSingleDeleteModal.hide();
-            },
-
             saveEditing(contact) {
-                const index = this.contacts.findIndex(c => c.id === contact.id);
-                if (index !== -1) {
-                    this.contacts[index] = contact;
-                }
+                this.$store.dispatch("updateContat", contact)//TODO: Если не удалось изменить, то вернуть в lable старые значения контакта
 
                 this.$refs.contactEditingModal.hide();
             },
