@@ -33,7 +33,7 @@
                       :items="contacts"
                       :item-value="id"
                       :search="term">
-            
+
             <template v-slot:[`header.data-table-select`]>
                 <v-checkbox v-model="isAllChecked"
                             @change="toggleAllSelect"
@@ -94,7 +94,7 @@
                 selectedContact: null,
                 checkedContactsCount: 0,
                 term: "",
-                
+
                 headers: [
                     { value: "data-table-select", sortable: false },
                     { value: "id", title: "№" },
@@ -112,17 +112,17 @@
 
         computed: {
             contacts() {
-                return this.$store.state.contacts;
+                return this.$store.getters.contacts;
             },
 
             isAllChecked() {
-                return this.$store.state.isAllChecked;
+                return this.$store.getters.isAllChecked;
             }
         },
 
         methods: {
             search() {
-                alert("search");
+                alert("search");//TODO: След. после allDelete в серверной части
             },
 
             showAllDeleteModal() {
@@ -152,6 +152,8 @@
             },
 
             deleteAllSelected() {
+                this.$store.dispatch("deleteAllSelectedContacts");
+
                 this.$refs.confirmAllDeleteModal.hide();
             },
 

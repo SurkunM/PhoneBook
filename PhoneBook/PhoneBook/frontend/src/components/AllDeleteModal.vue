@@ -5,7 +5,7 @@
                 Подтверждение удаления
             </v-card-title>
             <v-card-text>
-                Вы действительно хотите удалить все выбранные контакты?
+                Вы действительно хотите удалить все выбранные контакты? ({{ count }})
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
@@ -24,8 +24,14 @@
             };
         },
 
+        computed: {
+            count() {
+                return this.$store.getters.selectedCount;
+            }
+        },
+
         methods: {
-            show(){
+            show() {
                 this.isShow = true;
             },
 

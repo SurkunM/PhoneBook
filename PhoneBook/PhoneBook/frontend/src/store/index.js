@@ -4,7 +4,7 @@ import axios from "axios";
 export default createStore({
     state: {
         contacts: [],
-        selectedItems: [],
+        selectedContactsId: [],
 
         isAllChecked: false,
         isLoading: false
@@ -29,24 +29,24 @@ export default createStore({
             state.contacts.forEach(c => c.isChecked = state.isAllChecked);
 
             if (state.isAllChecked) {
-                state.selectedItems = state.contacts.map(c => c.id);
+                state.selectedContactsId = state.contacts.map(c => c.id);
             } else {
-                state.selectedItems = [];
+                state.selectedContactsId = [];
             }
         },
 
         addContactId(state, id) {
-            state.selectedItems.push(id);
+            state.selectedContactsId.push(id);
 
             state.contacts.find(c => c.id === id).isChecked = true;
             state.isAllChecked = false;
         },
 
         removeContactId(state, id) {
-            const index = state.selectedItems.indexOf(id);
+            const index = state.selectedContactsId.indexOf(id);
 
             if (index >= 0) {
-                state.selectedItems.splice(index, 1);
+                state.selectedContactsId.splice(index, 1);
                 state.contacts.find(c => c.id === id).isChecked = false;
 
                 state.isAllChecked = false;
@@ -74,8 +74,8 @@ export default createStore({
                 .then(response => {
                     commit("setContacts", response.data);
                 })
-                .catch(() => {
-                    alert("Не удалось загрузить контакты");
+                .catch(response => {
+                    alert("Не удалось загрузить контакты " + response.message);
                 })
                 .finally(() => {
                     commit("setIsLoading", false);
@@ -89,8 +89,8 @@ export default createStore({
                 .then(() => {
                     alert("Ok. Create");
                 })
-                .catch(() => {
-                    alert("Не удалось создать контакт");
+                .catch(response => {
+                    alert("Не удалось создать контакт " + response.message);
                 })
                 .finally(() => {
                     commit("setIsLoading", false);
@@ -100,17 +100,33 @@ export default createStore({
         deleteContact({ commit }, id) {
             commit("setIsLoading", true);
 
-            return axios.delete("/api/PhoneBook/DeleteContact",
-                {
-                    headers: { 'Content-Type': "application/json" },
-                    data: id
-                })
+            return axios.delete("/api/PhoneBook/DeleteContact", {
+
+                headers: { 'Content-Type': "application/json" },
+                data: id
+            })
                 .then(() => {
                     alert("Контакт удален");
                 })
                 .catch(response => {
                     alert("Не удалось удалить" + response.message);
 
+                })
+                .finally(() => {
+                    commit("setIsLoading", false);
+                });
+        },
+
+        deleteAllSelectedContacts({ commit, state }) {
+            commit("setIsLoading", false);
+
+            return axios.delete("/api/PhoneBook/DeleteContact", state.selectedContactsId)
+                .then(() => {
+                    alert("Все выбранные контакты удалены");
+                    commit("selectAllCheckbox");
+                })
+                .catch(response => {
+                    alert("Не удалось удалить все выбранные " + response.message);
                 })
                 .finally(() => {
                     commit("setIsLoading", false);
@@ -130,6 +146,20 @@ export default createStore({
                 .finally(() => {
                     commit("setIsLoading", false);
                 });
+        }
+    },
+
+    getters: {
+        contacts(state) {
+            return state.contacts;
+        },
+
+        selectedCount(state) {
+            return state.selectedContactsId.length;
+        },
+
+        isAllChecked(state) {
+            return state.isAllChecked;
         }
     }
 });
