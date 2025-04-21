@@ -4,8 +4,9 @@ import axios from "axios";
 export default createStore({
     state: {
         contacts: [],
+        selectedItems: [],
 
-        selectedContacts: [],
+        isAllChecked: false,
         isLoading: false
     },
 
@@ -18,44 +19,52 @@ export default createStore({
             state.contacts = contacts;
         },
 
-        allSelect(state, { contacts, select }) {
-            if (select) {
-                state.selectedContacts = contacts.map(contact => contact.id);
-                state.contacts.forEach(c => c.isChecked = true);
+        selectAllCheckbox(state) {
+            if (state.isAllChecked) {
+                state.isAllChecked = false;
             } else {
-                state.selectedContacts = [];
-                state.contacts.forEach(c => c.isChecked = false);
+                state.isAllChecked = true;
+            }
+
+            state.contacts.forEach(c => c.isChecked = state.isAllChecked);
+
+            if (state.isAllChecked) {
+                state.selectedItems = state.contacts.map(c => c.id);
+            } else {
+                state.selectedItems = [];
             }
         },
 
-        select(state, contactId) {
-            if (!state.selectedContacts.includes(contactId)) {
-                state.selectedContacts.push(contactId);
-            }
+        addContactId(state, id) {
+            state.selectedItems.push(id);
+
+            state.contacts.find(c => c.id === id).isChecked = true;
+            state.isAllChecked = false;
         },
 
-        deselect(state, contactId) {
-            const index = state.selectedContacts.indexOf(contactId)
-            if (index > -1) {
-                state.selectedContacts.splice(index, 1);
+        removeContactId(state, id) {
+            const index = state.selectedItems.indexOf(id);
+
+            if (index >= 0) {
+                state.selectedItems.splice(index, 1);
+                state.contacts.find(c => c.id === id).isChecked = false;
+
+                state.isAllChecked = false;
             }
         }
     },
 
     actions: {
-        toggleAllSelect({ commit, state }, select) {
-            commit("allSelect", {
-                contacts: state.contacts,
-                select: select ?? !(state.selectedContacts.length === state.contacts.length)
-            });
+        toggleAllSelect({ commit }) {
+            commit("selectAllCheckbox");
         },
 
-        selectContact({ commit }, contactId) {
-            commit("select", contactId);
+        selectContact({ commit }, id) {
+            commit("addContactId", id);
         },
 
-        deselectContact({ commit }, contactId) {
-            commit("deselect", contactId);
+        deselectContact({ commit }, id) {
+            commit("removeContactId", id);
         },
 
         loadContacts({ commit }) {

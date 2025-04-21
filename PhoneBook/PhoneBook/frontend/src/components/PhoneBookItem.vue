@@ -1,7 +1,7 @@
 ﻿<template>
     <tr>
         <td>
-            <v-checkbox v-model="isChecked" @change="onCheckboxChange($event, contact.id)"></v-checkbox>
+            <v-checkbox v-model="isChecked" @change="toggleCheckbox"></v-checkbox>
         </td>
 
         <td>{{ index + 1 }}</td>
@@ -46,11 +46,11 @@
         },
 
         methods: {
-            onCheckboxChange(event, contactId) {
-                if (event.target.checked) {
-                    this.$store.dispatch("selectContact", contactId)
-                } else {
-                    this.$store.dispatch("deselectContact", contactId)
+            toggleCheckbox() {
+                if (this.isChecked) {                    
+                    this.$store.dispatch("selectContact", this.contact.id);
+                } else {                    
+                    this.$store.dispatch("deselectContact", this.contact.id);
                 }
             }
         },

@@ -33,9 +33,9 @@
                       :items="contacts"
                       :item-value="id"
                       :search="term">
-            <!--чекбокс-->
+            
             <template v-slot:[`header.data-table-select`]>
-                <v-checkbox v-model="selectAll"
+                <v-checkbox v-model="isAllChecked"
                             @change="toggleAllSelect"
                             hide-details
                             class="ms-2">
@@ -92,8 +92,9 @@
         data() {
             return {
                 selectedContact: null,
+                checkedContactsCount: 0,
                 term: "",
-                selectAll: false,
+                
                 headers: [
                     { value: "data-table-select", sortable: false },
                     { value: "id", title: "№" },
@@ -112,14 +113,14 @@
         computed: {
             contacts() {
                 return this.$store.state.contacts;
+            },
+
+            isAllChecked() {
+                return this.$store.state.isAllChecked;
             }
         },
 
         methods: {
-            toggleAllSelect() {
-                this.$store.dispatch("toggleAllSelect", this.selectAll);
-            },
-
             search() {
                 alert("search");
             },
@@ -151,19 +152,18 @@
             },
 
             deleteAllSelected() {
-                this.contacts = this.contacts.filter(
-                    contact => !this.selected.includes(contact)
-                );
-                this.selected = [];
-
                 this.$refs.confirmAllDeleteModal.hide();
             },
 
             saveEditing(contact) {
-                this.$store.dispatch("updateContat", contact)//TODO: Если не удалось изменить, то вернуть в lable старые значения контакта
+                this.$store.dispatch("updateContat", contact);//TODO: Если не удалось изменить, то вернуть в lable старые значения контакта
 
                 this.$refs.contactEditingModal.hide();
             },
+
+            toggleAllSelect() {
+                this.$store.dispatch("toggleAllSelect");
+            }
         }
     };
 </script>
