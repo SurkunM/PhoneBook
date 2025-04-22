@@ -16,14 +16,17 @@ public class PhoneBookController : ControllerBase
 
     private readonly DeleteContactHandler _deleteContactHandler;
 
+    private readonly ILogger<PhoneBookController> _logger;
+
     public PhoneBookController(
         GetContactsHandler getContactsHandler, CreateContactHandler createContactHandler,
-        UpdateContactHandler updateContactHandler, DeleteContactHandler deleteContactHandler)
+        UpdateContactHandler updateContactHandler, DeleteContactHandler deleteContactHandler, ILogger<PhoneBookController> logger)
     {
         _createContactHandler = createContactHandler ?? throw new ArgumentNullException(nameof(createContactHandler));
         _getContactsHandler = getContactsHandler ?? throw new ArgumentNullException(nameof(getContactsHandler));
         _updateContactHandler = updateContactHandler ?? throw new ArgumentNullException(nameof(updateContactHandler));
         _deleteContactHandler = deleteContactHandler ?? throw new ArgumentNullException(nameof(deleteContactHandler));
+        _logger = logger;
     }
 
     [HttpGet]
@@ -37,54 +40,81 @@ public class PhoneBookController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
+            _logger.LogWarning("Переданы не корректные данные контакта.");
             return BadRequest(ModelState);
         }
 
-        var isCreated = _createContactHandler.Handle(contactDto);
-
-        if (!isCreated)
+        try
         {
+            _logger.LogInformation("Создание контакта.");
+            _createContactHandler.Handle(contactDto);
+
+            return Ok();
+        }
+        catch (Exception)
+        {
+            _logger.LogError("При создании контакта произошла ошибка.");
             return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
         }
-
-        return Ok();
     }
 
     [HttpPost]
-    public IActionResult UpdateContact(ContactDto contactDto)//TODO: Сейчас нет проверки что номер уже существует! Разобраться с валидацией
+    public IActionResult UpdateContact(ContactDto contactDto)//TODO: 3.Сейчас нет проверки что номер уже существует! Разобраться с валидацией
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var isUpdated = _updateContactHandler.Handle(contactDto);
+        try
+        {
+            _updateContactHandler.Handle(contactDto);
 
-        if (!isUpdated)
+            return Ok();
+        }
+        catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
         }
-
-        return Ok();
     }
 
     [HttpDelete]
     public IActionResult DeleteContact([FromBody] int id)
     {
-        var contact = _deleteContactHandler.FindContactById(id);
-
-        if (contact is null)
+        if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var isDeleted = _deleteContactHandler.Handle(contact);
+        try
+        {
+            _deleteContactHandler.DeleteSingleContactHandle(id);
 
-        if (!isDeleted)
+            return Ok();
+        }
+        catch
         {
             return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
         }
+    }
 
-        return Ok();
+    [HttpDelete]
+    public IActionResult DeleteAllSelectedContact([FromBody] List<int> selectedContactsId)
+    {
+        if (selectedContactsId is null || selectedContactsId.Count == 0)
+        {
+            return BadRequest("Не переданы данные для удаления");
+        }
+
+        try
+        {
+            _deleteContactHandler.DeleteAllSelectedContactHandle(selectedContactsId);
+
+            return Ok();
+        }
+        catch
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
+        }
     }
 }

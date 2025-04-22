@@ -18,6 +18,8 @@ public class BaseEfRepository<T> : IRepository<T> where T : class
     public void Create(T entity)
     {
         _dbSet.Add(entity);
+
+        Save();
     }
 
     public void Delete(T entity)
@@ -28,16 +30,20 @@ public class BaseEfRepository<T> : IRepository<T> where T : class
         }
 
         _dbSet.Remove(entity);
-    }
 
-    public void Save()
-    {
-        _dbContext.SaveChanges();
+        Save();
     }
 
     public void Update(T entity)
     {
         _dbSet.Attach(entity);
         _dbContext.Entry(entity).State = EntityState.Modified;
+
+        Save();
+    }
+
+    public void Save()
+    {
+        _dbContext.SaveChanges();
     }
 }

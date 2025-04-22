@@ -15,7 +15,6 @@ public class UpdateContactHandler
     public bool Handle(ContactDto contactDto)
     {
         _contactsRepository.Update(contactDto.ToModel());
-        _contactsRepository.Save();
 
         return true;
     }

@@ -15,7 +15,6 @@ public class CreateContactHandler
     public bool Handle(ContactDto contactDto)
     {
         _contactsRepository.Create(contactDto.ToModel());
-        _contactsRepository.Save();
 
         return true;
     }

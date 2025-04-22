@@ -25,6 +25,20 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
             .ToList();
     }
 
+    public bool DeleteRangeById(List<int> rangeId)
+    {
+        var contacts = _dbSet
+            .AsNoTracking()
+            .Where(c => rangeId.Contains(c.Id))
+            .ToList();
+
+        _dbSet.RemoveRange(contacts);
+
+        Save();
+
+        return true;
+    }
+
     public Contact? FindContactById(int id)
     {
         return _dbSet.FirstOrDefault(c => c.Id == id);

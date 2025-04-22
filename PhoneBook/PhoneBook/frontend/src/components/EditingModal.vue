@@ -69,7 +69,7 @@
                 return "Заполните поле Фамилия";
             },
 
-           checkEditingPhone(phone) {
+            checkEditingPhone(phone) {
                 if (/^[0-9-]{7,}$/.test(phone)) {
                     return true;
                 }
@@ -100,7 +100,11 @@
                 this.isShow = true;
             },
 
-            hide() {
+            hide() {//TODO: 2. При отмене нужно, что бы вернули старые занчения полям! Нужен метод который бы хранил старые значения
+                //this.editedContact.firstName = "";
+                //this.editedContact.lastname = "";
+                //this.editedContact.phone = "";
+
                 this.isShow = false;
             }
         },

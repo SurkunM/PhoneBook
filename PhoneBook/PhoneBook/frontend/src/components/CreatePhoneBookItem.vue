@@ -73,7 +73,7 @@
             },
 
             submitForm() {
-                this.errors.firstName = this.validateFirstName(this.contact.firstName);//TODO: Проверить валидацию в серверной части! и то что такой телефон уже сущ.
+                this.errors.firstName = this.validateFirstName(this.contact.firstName);//TODO: 3. Проверить валидацию в серверной части! и то что такой телефон уже сущ.
                 this.errors.lastName = this.validateLastName(this.contact.lastName);
                 this.errors.phone = this.validatePhone(this.contact.phone);
 

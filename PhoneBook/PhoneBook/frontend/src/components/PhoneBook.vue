@@ -35,8 +35,8 @@
                       :search="term">
 
             <template v-slot:[`header.data-table-select`]>
-                <v-checkbox v-model="isAllChecked"
-                            @change="toggleAllSelect"
+                <v-checkbox v-model="isAllSelect"
+                            @change="switchAllSelect"
                             hide-details
                             class="ms-2">
                 </v-checkbox>
@@ -45,7 +45,8 @@
             <template v-slot:[`header.actions`]>
                 <v-btn color="error"
                        text="Удалить все"
-                       @click="showAllDeleteModal">
+                       @click="showAllDeleteModal"
+                       v-show="enabledButton">
                 </v-btn>
             </template>
 
@@ -92,16 +93,15 @@
         data() {
             return {
                 selectedContact: null,
-                checkedContactsCount: 0,
                 term: "",
 
                 headers: [
-                    { value: "data-table-select", sortable: false },
+                    { value: "data-table-select" },
                     { value: "id", title: "№" },
                     { value: "lastName", title: "Фамилия", sortable: true },
                     { value: "firstName", title: "Имя", sortable: true },
                     { value: "phone", title: "Телефон" },
-                    { value: "actions", title: "", sortable: false }
+                    { value: "actions", title: "" }
                 ]
             };
         },
@@ -115,14 +115,18 @@
                 return this.$store.getters.contacts;
             },
 
-            isAllChecked() {
-                return this.$store.getters.isAllChecked;
+            isAllSelect() {
+                return this.$store.getters.isAllSelect;
+            },
+
+            enabledButton() {
+                return this.$store.getters.hasSelected;
             }
         },
 
         methods: {
             search() {
-                alert("search");//TODO: След. после allDelete в серверной части
+                alert("search");//TODO: 4.След. после allDelete в серверной части
             },
 
             showAllDeleteModal() {
@@ -135,16 +139,15 @@
             },
 
             showEditingModal(contact) {
-                this.selectedContact = contact;
-
+                this.selectedContact = contact;//можно без этой переменной
                 this.$refs.contactEditingModal.show(this.selectedContact);
             },
 
-            deleteContact() {
+            deleteContact() {//TODO:1. Отсюда вернется подписчикам все равно успешный ответ! Нужно как то возвразщять ошибку!
                 this.$store.dispatch("deleteContact", this.selectedContact.id)
                     .then(() => {
-                        this.$store.dispatch("loadContacts");
-                        alert("Ошибка удаления в PhoneBook");
+                        
+                        
                     })
                     .finally(() => {
                         this.$refs.confirmSingleDeleteModal.hide();
@@ -153,18 +156,19 @@
 
             deleteAllSelected() {
                 this.$store.dispatch("deleteAllSelectedContacts");
+                    
 
                 this.$refs.confirmAllDeleteModal.hide();
             },
 
             saveEditing(contact) {
-                this.$store.dispatch("updateContat", contact);//TODO: Если не удалось изменить, то вернуть в lable старые значения контакта
+                this.$store.dispatch("updateContat", contact);
 
                 this.$refs.contactEditingModal.hide();
             },
 
-            toggleAllSelect() {
-                this.$store.dispatch("toggleAllSelect");
+            switchAllSelect() {
+                this.$store.dispatch("switchAllSelect");
             }
         }
     };

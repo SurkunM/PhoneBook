@@ -7,5 +7,7 @@ public interface IContactsRepository : IRepository<Contact>
 {
     List<ContactDto> GetContacts();
 
+    bool DeleteRangeById(List<int> rangeId);
+
     Contact? FindContactById(int id);
 }

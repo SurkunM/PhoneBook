@@ -6,7 +6,7 @@ export default createStore({
         contacts: [],
         selectedContactsId: [],
 
-        isAllChecked: false,
+        isAllSelect: false,
         isLoading: false
     },
 
@@ -19,16 +19,16 @@ export default createStore({
             state.contacts = contacts;
         },
 
-        selectAllCheckbox(state) {
-            if (state.isAllChecked) {
-                state.isAllChecked = false;
+        switchAllCheckbox(state, select) {
+            if (select) {
+                state.isAllSelect = false;
             } else {
-                state.isAllChecked = true;
+                state.isAllSelect = true;
             }
 
-            state.contacts.forEach(c => c.isChecked = state.isAllChecked);
+            state.contacts.forEach(c => c.isChecked = state.isAllSelect);
 
-            if (state.isAllChecked) {
+            if (state.isAllSelect) {
                 state.selectedContactsId = state.contacts.map(c => c.id);
             } else {
                 state.selectedContactsId = [];
@@ -39,7 +39,7 @@ export default createStore({
             state.selectedContactsId.push(id);
 
             state.contacts.find(c => c.id === id).isChecked = true;
-            state.isAllChecked = false;
+            state.isAllSelect = false;
         },
 
         removeContactId(state, id) {
@@ -49,14 +49,14 @@ export default createStore({
                 state.selectedContactsId.splice(index, 1);
                 state.contacts.find(c => c.id === id).isChecked = false;
 
-                state.isAllChecked = false;
+                state.isAllSelect = false;
             }
         }
     },
 
     actions: {
-        toggleAllSelect({ commit }) {
-            commit("selectAllCheckbox");
+        switchAllSelect({ commit, state }) {
+            commit("switchAllCheckbox", state.isAllSelect);
         },
 
         selectContact({ commit }, id) {
@@ -82,7 +82,7 @@ export default createStore({
                 });
         },
 
-        createContact({ commit }, contact) {//TODO: Отсюда вернется подписчикам все равно успешный ответ! Нужно как то возвразщять ошибку!
+        createContact({ commit }, contact) {
             commit("setIsLoading", true);
 
             return axios.post("/api/PhoneBook/CreateContact", contact)
@@ -97,7 +97,7 @@ export default createStore({
                 });
         },
 
-        deleteContact({ commit }, id) {
+        deleteContact({ commit, dispatch }, id) {
             commit("setIsLoading", true);
 
             return axios.delete("/api/PhoneBook/DeleteContact", {
@@ -107,6 +107,8 @@ export default createStore({
             })
                 .then(() => {
                     alert("Контакт удален");
+                    dispatch("loadContacts");
+                    commit("removeContactId", id);
                 })
                 .catch(response => {
                     alert("Не удалось удалить" + response.message);
@@ -117,13 +119,18 @@ export default createStore({
                 });
         },
 
-        deleteAllSelectedContacts({ commit, state }) {
-            commit("setIsLoading", false);
+        deleteAllSelectedContacts({ commit, dispatch, state }) {
+            commit("setIsLoading", true);
 
-            return axios.delete("/api/PhoneBook/DeleteContact", state.selectedContactsId)
+            return axios.delete("/api/PhoneBook/DeleteAllSelectedContact", {
+                headers: { 'Content-Type': "application/json" },
+                data: state.selectedContactsId
+            })
                 .then(() => {
                     alert("Все выбранные контакты удалены");
-                    commit("selectAllCheckbox");
+                    dispatch("loadContacts");
+
+                    state.isAllSelect = false;
                 })
                 .catch(response => {
                     alert("Не удалось удалить все выбранные " + response.message);
@@ -133,12 +140,13 @@ export default createStore({
                 });
         },
 
-        updateContat({ commit }, contact) {
+        updateContat({ commit, dispatch }, contact) {
             commit("setIsLoading", true);
 
             return axios.post("/api/PhoneBook/UpdateContact", contact)
                 .then(() => {
                     alert("Контакт успешно изменен");
+                    dispatch("loadContacts");
                 })
                 .catch(response => {
                     alert("Не удалось в изменит " + response.message);
@@ -158,8 +166,12 @@ export default createStore({
             return state.selectedContactsId.length;
         },
 
-        isAllChecked(state) {
-            return state.isAllChecked;
+        hasSelected(state) {
+            return state.selectedContactsId.length > 0;
+        },
+
+        isAllSelect(state) {
+            return state.isAllSelect;
         }
     }
 });

@@ -1,6 +1,4 @@
-﻿using PhoneBook.Contracts.Dto;
-using PhoneBook.Contracts.Repositories;
-using PhoneBook.Model;
+﻿using PhoneBook.Contracts.Repositories;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
@@ -13,16 +11,24 @@ public class DeleteContactHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public bool Handle(Contact contact)
+    public bool DeleteSingleContactHandle(int id)
     {
+        var contact = _contactsRepository.FindContactById(id);
+
+        if (contact is null)
+        {
+            return false;
+        }
+
         _contactsRepository.Delete(contact);
-        _contactsRepository.Save();
 
         return true;
     }
 
-    public Contact? FindContactById(int id)
+    public bool DeleteAllSelectedContactHandle(List<int> rangeId)
     {
-        return _contactsRepository.FindContactById(id);
+        _contactsRepository.DeleteRangeById(rangeId);
+
+        return true;
     }
 }
