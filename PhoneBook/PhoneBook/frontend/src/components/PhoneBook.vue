@@ -107,7 +107,10 @@
         },
 
         created() {
-            this.$store.dispatch("loadContacts");
+            this.$store.dispatch("loadContacts")
+                .catch(() => {
+                    alert("Ошибка! Не удалось загрузить контакты.");
+                });
         },
 
         computed: {
@@ -139,15 +142,14 @@
             },
 
             showEditingModal(contact) {
-                this.selectedContact = contact;//можно без этой переменной
+                this.selectedContact = contact;
                 this.$refs.contactEditingModal.show(this.selectedContact);
             },
 
-            deleteContact() {//TODO:1. Отсюда вернется подписчикам все равно успешный ответ! Нужно как то возвразщять ошибку!
+            deleteContact() {
                 this.$store.dispatch("deleteContact", this.selectedContact.id)
-                    .then(() => {
-                        
-                        
+                    .catch(() => {
+                        alert("Ошибка! Не удалось удалить контакт.");
                     })
                     .finally(() => {
                         this.$refs.confirmSingleDeleteModal.hide();
@@ -155,16 +157,26 @@
             },
 
             deleteAllSelected() {
-                this.$store.dispatch("deleteAllSelectedContacts");
-                    
+                this.$store.dispatch("deleteAllSelectedContacts")
+                    .catch(() => {
+                        alert("Ошибка! Не удалось удвлить выбранные контакты.");
+                    })
+                    .finally(() => {
+                        this.$refs.confirmSingleDeleteModal.hide();
+                    });
+
 
                 this.$refs.confirmAllDeleteModal.hide();
             },
 
             saveEditing(contact) {
-                this.$store.dispatch("updateContat", contact);
-
-                this.$refs.contactEditingModal.hide();
+                this.$store.dispatch("updateContat", contact)
+                    .then(() => {
+                        this.$refs.contactEditingModal.hide();
+                    })
+                    .catch(() => {
+                        alert("Ошибка! Не удалось изменить контакт.");
+                    });
             },
 
             switchAllSelect() {

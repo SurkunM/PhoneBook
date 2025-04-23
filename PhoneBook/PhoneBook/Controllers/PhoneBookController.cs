@@ -59,7 +59,7 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult UpdateContact(ContactDto contactDto)//TODO: 3.Сейчас нет проверки что номер уже существует! Разобраться с валидацией
+    public IActionResult UpdateContact(ContactDto contactDto)//TODO: 3.Сейчас нет проверки что номер уже существует!
     {
         if (!ModelState.IsValid)
         {

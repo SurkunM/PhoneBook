@@ -13,17 +13,20 @@
                 <v-card-text>
                     <v-text-field v-model.trim="editedContact.firstName"
                                   label="Имя"
-                                  :error-messages="errors.firstName">
+                                  :error-messages="errors.firstName"
+                                  @change="checkFirstNameFieldComplete">
                     </v-text-field>
 
                     <v-text-field v-model.trim="editedContact.lastName"
                                   label="Фамилия"
-                                  :error-messages="errors.lastName">
+                                  :error-messages="errors.lastName"
+                                  @change="checkLastNameFieldComplete">
                     </v-text-field>
 
                     <v-text-field v-model.trim="editedContact.phone"
                                   label="Телефон"
-                                  :error-messages="errors.phone">
+                                  :error-messages="errors.phone"
+                                  @change="checkPhoneFieldComplete">
                     </v-text-field>
                 </v-card-text>
 
@@ -42,7 +45,12 @@
         data() {
             return {
                 isShow: false,
-                editedContact: null,
+                editedContact: {
+                    id: 0,
+                    firstName: "",
+                    lastName: "",
+                    phone: ""
+                },
 
                 errors: {
                     firstName: "",
@@ -53,34 +61,55 @@
         },
 
         methods: {
-            checkEditingFirstName(firstName) {
-                if (firstName?.length > 0) {
-                    return true;
+            checkEditingFieldsIsvalid(contact) {
+                this.resetErrors();
+                let isValid = true;
+
+                if (contact.firstName.length === 0) {
+                    this.errors.firstName = "Заполните поле Имя";
+                    isValid = false;
                 }
 
-                return "Заполните поле Имя";
+                if (contact.lastName.length === 0) {
+                    this.errors.lastName = "Заполните поле Фамилия";
+                    isValid = false;
+                }
+
+                if (contact.phone.length === 0) {
+                    this.errors.phone = "Заполните поле Телефон";
+                    isValid = false;
+                }
+
+                if (isNaN(Number(contact.phone))) {
+                    this.errors.phone = "Неверный формат номера телефона";
+                    isValid = false;
+                }
+
+                return isValid;
             },
 
-            checkEditingLastName(lastName) {
-                if (lastName?.length >= 2) {
-                    return true;
+            checkFirstNameFieldComplete() {
+                if (this.editedContact.firstName.length > 0) {
+                    this.errors.firstName = "";
                 }
-
-                return "Заполните поле Фамилия";
             },
 
-            checkEditingPhone(phone) {
-                if (/^[0-9-]{7,}$/.test(phone)) {
-                    return true;
+            checkLastNameFieldComplete() {
+                if (this.editedContact.lastName.length > 0) {
+                    this.errors.lastName = "";
                 }
+            },
 
-                return "Неверный формат для поля телефон";
+            checkPhoneFieldComplete() {
+                if (this.editedContact.phone.length > 0) {
+                    this.errors.phone = "";
+                }
             },
 
             submitForm() {
-                //this.errors.firstName = this.checkEditingFirstName(this.editedContact.firstName);
-                //this.errors.lastName = this.checkEditingLastName(this.editedContact.lastName);
-                //this.errors.phone = this.checkEditingPhone(this.editedContact.phone);
+                if (!this.checkEditingFieldsIsvalid(this.editedContact)) {
+                    return;
+                }
 
                 this.$emit('save', this.editedContact)
             },
@@ -95,16 +124,16 @@
 
             show(contact) {
                 this.resetErrors();
-                this.editedContact = contact;
+
+                this.editedContact.id = contact.id;
+                this.editedContact.firstName = contact.firstName;
+                this.editedContact.lastName = contact.lastName;
+                this.editedContact.phone = contact.phone;
 
                 this.isShow = true;
             },
 
-            hide() {//TODO: 2. При отмене нужно, что бы вернули старые занчения полям! Нужен метод который бы хранил старые значения
-                //this.editedContact.firstName = "";
-                //this.editedContact.lastname = "";
-                //this.editedContact.phone = "";
-
+            hide() {
                 this.isShow = false;
             }
         },

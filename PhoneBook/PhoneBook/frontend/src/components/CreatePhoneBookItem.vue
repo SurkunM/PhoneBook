@@ -9,16 +9,19 @@
     <form @submit.prevent="submitForm">
         <v-text-field v-model.trim="contact.firstName"
                       :error-messages="errors.firstName"
+                      @change="checkFirstNameFieldComplete"
                       label="Имя">
         </v-text-field>
 
         <v-text-field v-model.trim="contact.lastName"
                       :error-messages="errors.lastName"
+                      @change="checkLastNameFieldComplete"
                       label="Фамилия">
         </v-text-field>
 
         <v-text-field v-model.trim="contact.phone"
                       :error-messages="errors.phone"
+                      @change="checkPhoneFieldComplete"
                       label="Телефон">
         </v-text-field>
 
@@ -48,34 +51,54 @@
         },
 
         methods: {
-            validateFirstName(firstName) {
-                if (firstName?.length > 0) {
-                    return true;
+            checkFieldsIsvalid(contact) {
+                let isValid = true;
+
+                if (contact.firstName.length === 0) {
+                    this.errors.firstName = "Заполните поле Имя";
+                    isValid = false;
                 }
 
-                return "Заполните поле Имя";
+                if (contact.lastName.length === 0) {
+                    this.errors.lastName = "Заполните поле Фамилия";
+                    isValid = false;
+                }
+
+                if (contact.phone.length === 0) {
+                    this.errors.phone = "Заполните поле Телефон";
+                    isValid = false;
+                }
+
+                if (isNaN(Number(contact.phone))) {
+                    this.errors.phone = "Неверный формат номера телефона";
+                    isValid = false;
+                }
+
+                return isValid;
             },
 
-            validateLastName(lastName) {
-                if (lastName?.length >= 0) {
-                    return true;
+            checkFirstNameFieldComplete() {
+                if (this.contact.firstName.length > 0) {
+                    this.errors.firstName = "";
                 }
-
-                return "Заполните поле Фамилия";
             },
 
-            validatePhone(phone) {
-                if (/^[0-9-]/.test(phone)) {
-                    return true;
+            checkLastNameFieldComplete() {
+                if (this.contact.lastName.length > 0) {
+                    this.errors.lastName = "";
                 }
+            },
 
-                return "Неверный формат для поля телефон";
+            checkPhoneFieldComplete() {
+                if (this.contact.phone.length > 0) {
+                    this.errors.phone = "";
+                }
             },
 
             submitForm() {
-                this.errors.firstName = this.validateFirstName(this.contact.firstName);//TODO: 3. Проверить валидацию в серверной части! и то что такой телефон уже сущ.
-                this.errors.lastName = this.validateLastName(this.contact.lastName);
-                this.errors.phone = this.validatePhone(this.contact.phone);
+                //if (!this.checkFieldsIsvalid(this.contact)) {
+                //    return;
+                //}
 
                 const createdContact = {
                     firstName: this.contact.firstName,
@@ -83,21 +106,29 @@
                     phone: this.contact.phone
                 };
 
-                this.$store.dispatch("createContact", createdContact);
-                this.resetForm();
-            },
+                this.$store.dispatch("createContact", createdContact)
+                    .then(() => {
+                        alert("Контакт успешно создан!");
+                        this.resetForm();
+                    })
+                    .catch(() => {
+                        this.checkFieldsIsvalid(createdContact);
+                        alert("Ошибка! Не удалось создать контакт.");  //TODO: 3. Проверить то что такой телефон уже сущ.
+                    });
+            },            
 
             resetForm() {
                 this.contact = {
                     firstName: "",
                     lastName: "",
                     phone: ""
-                }
-                this.errors = {
-                    firstName: "",
-                    lastName: "",
-                    phone: ""
-                }
+                },
+
+                    this.errors = {
+                        firstName: "",
+                        lastName: "",
+                        phone: ""
+                    }
             }
         }
     }

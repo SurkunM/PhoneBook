@@ -74,23 +74,17 @@ export default createStore({
                 .then(response => {
                     commit("setContacts", response.data);
                 })
-                .catch(response => {
-                    alert("Не удалось загрузить контакты " + response.message);
-                })
                 .finally(() => {
                     commit("setIsLoading", false);
                 });
         },
 
-        createContact({ commit }, contact) {
+        createContact({ commit, dispatch }, contact) {
             commit("setIsLoading", true);
 
             return axios.post("/api/PhoneBook/CreateContact", contact)
                 .then(() => {
-                    alert("Ok. Create");
-                })
-                .catch(response => {
-                    alert("Не удалось создать контакт " + response.message);
+                    dispatch("loadContacts");
                 })
                 .finally(() => {
                     commit("setIsLoading", false);
@@ -106,13 +100,8 @@ export default createStore({
                 data: id
             })
                 .then(() => {
-                    alert("Контакт удален");
                     dispatch("loadContacts");
                     commit("removeContactId", id);
-                })
-                .catch(response => {
-                    alert("Не удалось удалить" + response.message);
-
                 })
                 .finally(() => {
                     commit("setIsLoading", false);
@@ -127,13 +116,8 @@ export default createStore({
                 data: state.selectedContactsId
             })
                 .then(() => {
-                    alert("Все выбранные контакты удалены");
                     dispatch("loadContacts");
-
                     state.isAllSelect = false;
-                })
-                .catch(response => {
-                    alert("Не удалось удалить все выбранные " + response.message);
                 })
                 .finally(() => {
                     commit("setIsLoading", false);
@@ -145,11 +129,7 @@ export default createStore({
 
             return axios.post("/api/PhoneBook/UpdateContact", contact)
                 .then(() => {
-                    alert("Контакт успешно изменен");
                     dispatch("loadContacts");
-                })
-                .catch(response => {
-                    alert("Не удалось в изменит " + response.message);
                 })
                 .finally(() => {
                     commit("setIsLoading", false);
@@ -171,7 +151,7 @@ export default createStore({
         },
 
         isAllSelect(state) {
-            return state.isAllSelect;
+            return state.isAllSelect || state.selectedContactsId.length === state.contacts.length;
         }
     }
 });
