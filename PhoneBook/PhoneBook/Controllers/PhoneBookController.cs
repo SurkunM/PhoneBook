@@ -30,7 +30,7 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpGet]
-    public List<ContactDto> GetContacts()//TODO: Сделать логирование!
+    public List<ContactDto> GetContacts()//TODO: 3 Сделать логирование!
     {
         return _getContactsHandler.Handle();
     }
@@ -59,7 +59,7 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult UpdateContact(ContactDto contactDto)//TODO: 3.Сейчас нет проверки что номер уже существует!
+    public IActionResult UpdateContact(ContactDto contactDto)
     {
         if (!ModelState.IsValid)
         {

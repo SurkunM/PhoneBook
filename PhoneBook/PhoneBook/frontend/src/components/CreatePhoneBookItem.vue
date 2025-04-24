@@ -6,22 +6,28 @@
         </h2>
     </v-card-title>
 
+    <v-alert text="Контакт успешно создан" type="success" variant="outlined" v-show="isShowSuccessAlert"></v-alert>
+    <v-alert text="Ошибка! Не удалось создать контакт" type="error" variant="outlined" v-show="isShowErrorAlert"></v-alert>
+
     <form @submit.prevent="submitForm">
         <v-text-field v-model.trim="contact.firstName"
                       :error-messages="errors.firstName"
                       @change="checkFirstNameFieldComplete"
+                      autocomplete="off"
                       label="Имя">
         </v-text-field>
 
         <v-text-field v-model.trim="contact.lastName"
                       :error-messages="errors.lastName"
                       @change="checkLastNameFieldComplete"
+                      autocomplete="off"
                       label="Фамилия">
         </v-text-field>
 
         <v-text-field v-model.trim="contact.phone"
                       :error-messages="errors.phone"
                       @change="checkPhoneFieldComplete"
+                      autocomplete="off"
                       label="Телефон">
         </v-text-field>
 
@@ -35,6 +41,9 @@
     export default {
         data() {
             return {
+                isShowSuccessAlert: false,
+                isShowErrorAlert: false,
+
                 contact: {
                     firstName: "",
                     lastName: "",
@@ -96,9 +105,9 @@
             },
 
             submitForm() {
-                //if (!this.checkFieldsIsvalid(this.contact)) {
-                //    return;
-                //}
+                if (!this.checkFieldsIsvalid(this.contact)) {
+                    return;
+                }
 
                 const createdContact = {
                     firstName: this.contact.firstName,
@@ -108,14 +117,14 @@
 
                 this.$store.dispatch("createContact", createdContact)
                     .then(() => {
-                        alert("Контакт успешно создан!");
                         this.resetForm();
+                        this.showSuccessAlert();
                     })
                     .catch(() => {
                         this.checkFieldsIsvalid(createdContact);
-                        alert("Ошибка! Не удалось создать контакт.");  //TODO: 3. Проверить то что такой телефон уже сущ.
+                        this.showErrorAlert();  //TODO: 2. Реализовать проверку на сервере, что такой тел. уже сущесвтует
                     });
-            },            
+            },
 
             resetForm() {
                 this.contact = {
@@ -129,6 +138,22 @@
                         lastName: "",
                         phone: ""
                     }
+            },
+
+            showSuccessAlert() {
+                this.isShowSuccessAlert = true;
+
+                setTimeout(() => {
+                    this.isShowSuccessAlert = false;
+                }, 1500);
+            },
+
+            showErrorAlert() {
+                this.isShowErrorAlert = true;
+
+                setTimeout(() => {
+                    this.isShowErrorAlert = false;
+                }, 1500);
             }
         }
     }

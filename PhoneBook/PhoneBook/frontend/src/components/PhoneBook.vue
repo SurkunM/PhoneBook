@@ -5,6 +5,18 @@
             Контакты
         </h2>
     </v-card-title>
+
+    <v-alert type="success" variant="outlined" v-show="isShowSuccessAlert">
+        <template v-slot:text>
+            <span v-text="alertText"></span>
+        </template>
+    </v-alert>
+    <v-alert type="error" variant="outlined" v-show="isShowErrorAlert">
+        <template v-slot:text>
+            <span v-text="alertText"></span>
+        </template>
+    </v-alert>
+
     <v-card flat>
         <template v-slot:text>
             <v-text-field v-model="term"
@@ -95,6 +107,10 @@
                 selectedContact: null,
                 term: "",
 
+                isShowSuccessAlert: false,
+                isShowErrorAlert: false,
+                alertText: "",
+
                 headers: [
                     { value: "data-table-select" },
                     { value: "id", title: "№" },
@@ -109,7 +125,7 @@
         created() {
             this.$store.dispatch("loadContacts")
                 .catch(() => {
-                    alert("Ошибка! Не удалось загрузить контакты.");
+                    this.showErrorAlert("Ошибка! Не удалось загрузить контакты.");
                 });
         },
 
@@ -129,7 +145,7 @@
 
         methods: {
             search() {
-                alert("search");//TODO: 4.След. после allDelete в серверной части
+                alert("search");//TODO: 1.Сделать поиск
             },
 
             showAllDeleteModal() {
@@ -148,8 +164,11 @@
 
             deleteContact() {
                 this.$store.dispatch("deleteContact", this.selectedContact.id)
+                    .then(() => {
+                        this.showSuccessAlert("Контакт успешно удален.");
+                    })
                     .catch(() => {
-                        alert("Ошибка! Не удалось удалить контакт.");
+                        this.showErrorAlert("Ошибка! Не удалось удалить контакт.");
                     })
                     .finally(() => {
                         this.$refs.confirmSingleDeleteModal.hide();
@@ -158,8 +177,11 @@
 
             deleteAllSelected() {
                 this.$store.dispatch("deleteAllSelectedContacts")
+                    .then(() => {
+                        this.showSuccessAlert("Выбранные контакты успешно удалены.");
+                    })
                     .catch(() => {
-                        alert("Ошибка! Не удалось удвлить выбранные контакты.");
+                        this.showErrorAlert("Ошибка! Не удалось удалить выбранные контакты.");
                     })
                     .finally(() => {
                         this.$refs.confirmSingleDeleteModal.hide();
@@ -173,14 +195,35 @@
                 this.$store.dispatch("updateContat", contact)
                     .then(() => {
                         this.$refs.contactEditingModal.hide();
+                        this.showSuccessAlert("Контакт успешно изменен.");
                     })
                     .catch(() => {
-                        alert("Ошибка! Не удалось изменить контакт.");
+                        this.$refs.contactEditingModal.checkEditingFieldsIsvalid(contact);
                     });
             },
 
             switchAllSelect() {
                 this.$store.dispatch("switchAllSelect");
+            },
+
+            showSuccessAlert(text) {
+                this.alertText = text;
+                this.isShowSuccessAlert = true;
+
+                setTimeout(() => {
+                    this.alertText = "";
+                    this.isShowSuccessAlert = false;
+                }, 1500);
+            },
+
+            showErrorAlert(text) {
+                this.alertText = text;
+                this.isShowErrorAlert = true;
+
+                setTimeout(() => {
+                    this.alertText = "";
+                    this.isShowErrorAlert = false;
+                }, 1500);
             }
         }
     };
