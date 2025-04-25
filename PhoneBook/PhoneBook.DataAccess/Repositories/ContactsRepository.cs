@@ -10,18 +10,38 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 {
     public ContactsRepository(PhoneBookDbContext dbContext) : base(dbContext) { }
 
-    public List<ContactDto> GetContacts()
+    public List<ContactDto> GetContacts(string term)
     {
+        if (term.Length == 0)
+        {
+            return _dbSet
+                .AsNoTracking()
+                .Select(c => new ContactDto
+                {
+                    Id = c.Id,
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
+                    Phone = c.Phone,
+                })
+                .OrderBy(c => c.LastName)
+                .ThenBy(c => c.FirstName)
+                .ToList();
+        }
+
         return _dbSet
             .AsNoTracking()
-            .Select(c => new ContactDto { 
+            .Where(c => c.FirstName.ToUpper().Contains(term)
+                || c.LastName.ToUpper().Contains(term)
+                || c.Phone.ToUpper().Contains(term))
+            .Select(c => new ContactDto
+            {
                 Id = c.Id,
                 FirstName = c.FirstName,
                 LastName = c.LastName,
                 Phone = c.Phone,
             })
             .OrderBy(c => c.LastName)
-            .ThenBy(c => c.FirstName)            
+            .ThenBy(c => c.FirstName)
             .ToList();
     }
 

@@ -122,7 +122,7 @@
                     })
                     .catch(() => {
                         this.checkFieldsIsvalid(createdContact);
-                        this.showErrorAlert();  //TODO: 2. Реализовать проверку на сервере, что такой тел. уже сущесвтует
+                        this.showErrorAlert();  //TODO: 1. Реализовать проверку на сервере, что такой тел. уже сущесвтует
                     });
             },
 

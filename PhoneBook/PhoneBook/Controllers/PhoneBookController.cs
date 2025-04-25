@@ -30,9 +30,14 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpGet]
-    public List<ContactDto> GetContacts()//TODO: 3 Сделать логирование!
+    public ActionResult<List<ContactDto>> GetContacts([FromQuery] string term = "")//TODO: 2 Сделать логирование!
     {
-        return _getContactsHandler.Handle();
+        if(term is null)
+        {
+            return BadRequest("Передано значение null");
+        }
+
+        return _getContactsHandler.Handle(term.ToUpper().Trim());
     }
 
     [HttpPost]

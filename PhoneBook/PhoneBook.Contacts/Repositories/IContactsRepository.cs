@@ -5,7 +5,7 @@ namespace PhoneBook.Contracts.Repositories;
 
 public interface IContactsRepository : IRepository<Contact>
 {
-    List<ContactDto> GetContacts();
+    List<ContactDto> GetContacts(string term);
 
     bool DeleteRangeById(List<int> rangeId);
 

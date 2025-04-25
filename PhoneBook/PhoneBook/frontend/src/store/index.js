@@ -5,6 +5,7 @@ export default createStore({
     state: {
         contacts: [],
         selectedContactsId: [],
+        term: "",
 
         isAllSelect: false,
         isLoading: false
@@ -13,6 +14,10 @@ export default createStore({
     mutations: {
         setIsLoading(state, value) {
             state.isLoading = value;
+        },
+
+        setTerm(state, value) {
+            state.term = value;
         },
 
         setContacts(state, contacts) {
@@ -67,10 +72,10 @@ export default createStore({
             commit("removeContactId", id);
         },
 
-        loadContacts({ commit }) {
+        loadContacts({ commit, state }) {
             commit("setIsLoading", true);
 
-            return axios.get("/api/PhoneBook/GetContacts")
+            return axios.get("/api/PhoneBook/GetContacts", { params: { term: state.term } })
                 .then(response => {
                     commit("setContacts", response.data);
                 })
@@ -118,6 +123,7 @@ export default createStore({
                 .then(() => {
                     dispatch("loadContacts");
                     state.isAllSelect = false;
+                    state.selectedContactsId = [];
                 })
                 .finally(() => {
                     commit("setIsLoading", false);
@@ -134,6 +140,11 @@ export default createStore({
                 .finally(() => {
                     commit("setIsLoading", false);
                 });
+        },
+
+        searchContacts({ commit, dispatch }, term) {
+            commit("setTerm", term);
+            dispatch("loadContacts");
         }
     },
 
@@ -151,7 +162,7 @@ export default createStore({
         },
 
         isAllSelect(state) {
-            return state.isAllSelect || state.selectedContactsId.length === state.contacts.length;
+            return state.isAllSelect || (state.selectedContactsId.length === state.contacts.length && state.selectedContactsId.length > 0);
         }
     }
 });

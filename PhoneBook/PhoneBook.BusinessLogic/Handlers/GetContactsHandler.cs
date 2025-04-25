@@ -12,8 +12,8 @@ public class GetContactsHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public List<ContactDto> Handle()
+    public List<ContactDto> Handle(string term)
     {
-        return _contactsRepository.GetContacts();
+        return _contactsRepository.GetContacts(term);
     }
 }

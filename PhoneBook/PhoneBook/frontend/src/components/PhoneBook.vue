@@ -21,18 +21,19 @@
         <template v-slot:text>
             <v-text-field v-model="term"
                           label="Поиск"
+                          autocomplete="off"
                           prepend-inner-icon="mdi-magnify"
                           variant="outlined"
                           hide-details
                           single-line>
                 <template v-slot:append-inner>
                     <v-btn icon
-                           @click="search"
+                           @click="searchContacts"
                            color="primary"
                            size="small">
                         <v-icon>mdi-magnify</v-icon>
                     </v-btn>
-                    <v-icon @click="term = ''"
+                    <v-icon @click="cancelSearch"
                             style="cursor: pointer;"
                             size="x-large"
                             class="ms-1 me-2">
@@ -43,8 +44,7 @@
         </template>
         <v-data-table :headers="headers"
                       :items="contacts"
-                      :item-value="id"
-                      :search="term">
+                      :item-value="id">
 
             <template v-slot:[`header.data-table-select`]>
                 <v-checkbox v-model="isAllSelect"
@@ -144,8 +144,13 @@
         },
 
         methods: {
-            search() {
-                alert("search");//TODO: 1.Сделать поиск
+            searchContacts() {
+                this.$store.dispatch("searchContacts", this.term); //TODO: 3. Реализовать сортировку по клику headers
+            },
+
+            cancelSearch() {
+                this.term = "",
+                this.$store.dispatch("searchContacts", this.term);
             },
 
             showAllDeleteModal() {
