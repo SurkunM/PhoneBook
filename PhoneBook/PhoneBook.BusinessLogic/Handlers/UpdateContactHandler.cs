@@ -19,8 +19,8 @@ public class UpdateContactHandler
         return true;
     }
 
-    public bool CheckIsPhoneExist(string phone)
+    public bool CheckIsPhoneExist(ContactDto contactDto)
     {
-        return _contactsRepository.CheckIsPhoneExist(phone);
+        return _contactsRepository.CheckIsPhoneExist(contactDto);
     }
 }

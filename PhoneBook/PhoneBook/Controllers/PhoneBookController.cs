@@ -48,14 +48,15 @@ public class PhoneBookController : ControllerBase
         if (!ModelState.IsValid)
         {
             _logger.LogError("Переданы не корректные данные контакта.");
-            return BadRequest(ModelState);
+
+            return UnprocessableEntity(ModelState);
         }
 
-        if (_createContactHandler.CheckIsPhoneExist(contactDto.Phone))
+        if (_createContactHandler.CheckIsPhoneExist(contactDto))
         {
             _logger.LogError("Контакт с таким номером уже существует.");
 
-            return BadRequest("Контакт с таким номером уже существует.");
+            return Conflict("Контакт с таким номером уже существует.");
         }
 
         try
@@ -77,15 +78,15 @@ public class PhoneBookController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            _logger.LogError("При редактировании контакта произошла ошибка. Не корректно заполнены поля данных.");
-            return BadRequest(ModelState);
+            _logger.LogError("Не корректно заполнены поля данных.");
+            return UnprocessableEntity(ModelState);
         }
 
-        if (_updateContactHandler.CheckIsPhoneExist(contactDto.Phone))
+        if (_updateContactHandler.CheckIsPhoneExist(contactDto))
         {
-            _logger.LogError("При редактировании контакта произошла ошибка. Контакт с таким номером уже существует.");
+            _logger.LogError("Попытка добавить номер телефона, который уже существует.");
 
-            return BadRequest("Контакт с таким номером уже существует.");
+            return Conflict("Номер уже существует.");
         }
 
         try
@@ -114,7 +115,13 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            _deleteContactHandler.DeleteSingleContactHandle(id);
+            var isDelete = _deleteContactHandler.DeleteSingleContactHandle(id);
+
+            if (!isDelete)
+            {
+                return BadRequest("Контакт для удаления не найден.");
+
+            }
 
             return Ok();
         }

@@ -104,6 +104,10 @@
                 }
             },
 
+            setExistPhoneInvalid() {
+                this.errors.phone = "Номер телефона уже существует";
+            },
+
             submitForm() {
                 if (!this.checkFieldsIsvalid(this.contact)) {
                     return;
@@ -120,9 +124,15 @@
                         this.resetForm();
                         this.showSuccessAlert();
                     })
-                    .catch(() => {
-                        this.checkFieldsIsvalid(createdContact);
-                        this.showErrorAlert();  //TODO: 1. Реализовать проверку на сервере, что такой тел. уже сущесвтует
+                    .catch(error => {
+                        if (error.response?.status === 400) {
+                            this.checkFieldsIsvalid(createdContact);
+                        }
+                        else if (error.response?.status === 409) {
+                            this.setExistPhoneInvalid();
+                        }
+                        
+                        this.showErrorAlert();
                     });
             },
 

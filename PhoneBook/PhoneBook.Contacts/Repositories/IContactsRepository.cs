@@ -11,5 +11,5 @@ public interface IContactsRepository : IRepository<Contact>
 
     bool DeleteRangeById(List<int> rangeId);
 
-    bool CheckIsPhoneExist(string phone);
+    bool CheckIsPhoneExist(ContactDto contactDto);
 }

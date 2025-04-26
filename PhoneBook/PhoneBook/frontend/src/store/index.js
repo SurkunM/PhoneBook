@@ -24,8 +24,8 @@ export default createStore({
             state.contacts = contacts;
         },
 
-        switchAllCheckbox(state, select) {
-            if (select) {
+        switchAllCheckbox(state, isSelect) {
+            if (isSelect) {
                 state.isAllSelect = false;
             } else {
                 state.isAllSelect = true;
@@ -72,78 +72,74 @@ export default createStore({
             commit("removeContactId", id);
         },
 
-        loadContacts({ commit, state }) {
+        async loadContacts({ commit, state }) {
             commit("setIsLoading", true);
 
-            return axios.get("/api/PhoneBook/GetContacts", { params: { term: state.term } })
-                .then(response => {
-                    commit("setContacts", response.data);
-                })
-                .finally(() => {
-                    commit("setIsLoading", false);
-                });
+            try {
+                const response = await axios.get("/api/PhoneBook/GetContacts", { params: { term: state.term } });
+                commit("setContacts", response.data);
+            } finally {
+                commit("setIsLoading", false);
+            }
         },
 
-        createContact({ commit, dispatch }, contact) {
+        async createContact({ commit, dispatch }, contact) {
             commit("setIsLoading", true);
 
-            return axios.post("/api/PhoneBook/CreateContact", contact)
-                .then(() => {
-                    dispatch("loadContacts");
-                })
-                .finally(() => {
-                    commit("setIsLoading", false);
-                });
+            try {
+                await axios.post("/api/PhoneBook/CreateContact", contact);
+                dispatch("loadContacts");
+            } finally {
+                commit("setIsLoading", false);
+            }
         },
 
-        deleteContact({ commit, dispatch }, id) {
+        async deleteContact({ commit, dispatch }, id) {
             commit("setIsLoading", true);
 
-            return axios.delete("/api/PhoneBook/DeleteContact", {
-
-                headers: { 'Content-Type': "application/json" },
-                data: id
-            })
-                .then(() => {
-                    dispatch("loadContacts");
-                    commit("removeContactId", id);
-                })
-                .finally(() => {
-                    commit("setIsLoading", false);
+            try {
+                await axios.delete("/api/PhoneBook/DeleteContact", {
+                    headers: { 'Content-Type': "application/json" },
+                    data: id
                 });
+                dispatch("loadContacts");
+                commit("removeContactId", id);
+            } finally {
+                commit("setIsLoading", false);
+            }
         },
 
-        deleteAllSelectedContacts({ commit, dispatch, state }) {
+        async deleteAllSelectedContacts({ commit, dispatch, state }) {
             commit("setIsLoading", true);
 
-            return axios.delete("/api/PhoneBook/DeleteAllSelectedContact", {
-                headers: { 'Content-Type': "application/json" },
-                data: state.selectedContactsId
-            })
-                .then(() => {
-                    dispatch("loadContacts");
-                    state.isAllSelect = false;
-                    state.selectedContactsId = [];
-                })
-                .finally(() => {
-                    commit("setIsLoading", false);
+            try {
+                await axios.delete("/api/PhoneBook/DeleteAllSelectedContact", {
+                    headers: { 'Content-Type': "application/json" },
+                    data: state.selectedContactsId
                 });
+                dispatch("loadContacts");
+
+                commit("switchAllCheckbox", true);
+            } finally {
+                commit("setIsLoading", false);
+            }
         },
 
-        updateContat({ commit, dispatch }, contact) {
+        async updateContat({ commit, dispatch }, contact) {
             commit("setIsLoading", true);
 
-            return axios.post("/api/PhoneBook/UpdateContact", contact)
-                .then(() => {
-                    dispatch("loadContacts");
-                })
-                .finally(() => {
-                    commit("setIsLoading", false);
-                });
+            try {
+                await axios.post("/api/PhoneBook/UpdateContact", contact);
+                dispatch("loadContacts");
+            } finally {
+                commit("setIsLoading", false);
+            }
         },
 
         searchContacts({ commit, dispatch }, term) {
             commit("setTerm", term);
+            commit("switchAllCheckbox", true);
+
             dispatch("loadContacts");
         }
     },

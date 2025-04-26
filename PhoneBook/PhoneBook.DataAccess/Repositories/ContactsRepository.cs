@@ -64,8 +64,8 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
         return _dbSet.FirstOrDefault(c => c.Id == id);
     }
 
-    public bool CheckIsPhoneExist(string phone)
+    public bool CheckIsPhoneExist(ContactDto contactDto)
     {
-        return _dbSet.Any(c => c.Phone == phone);
+        return _dbSet.Any(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
     }
 }

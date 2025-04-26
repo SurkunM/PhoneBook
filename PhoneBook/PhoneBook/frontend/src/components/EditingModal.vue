@@ -109,6 +109,10 @@
                 }
             },
 
+            setExistPhoneInvalid() {
+                this.errors.phone = "Номер телефона уже существует";
+            },
+
             submitForm() {
                 if (!this.checkEditingFieldsIsvalid(this.editedContact)) {
                     return;

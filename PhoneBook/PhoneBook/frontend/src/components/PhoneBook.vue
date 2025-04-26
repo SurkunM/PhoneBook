@@ -96,8 +96,8 @@
     export default {
         components: {
             PhoneBookItem,
-            EditingModal,
 
+            EditingModal,
             SingleDeleteModal,
             AllDeleteModal
         },
@@ -149,7 +149,7 @@
             },
 
             cancelSearch() {
-                this.term = "",
+                this.term = "";
                 this.$store.dispatch("searchContacts", this.term);
             },
 
@@ -202,8 +202,13 @@
                         this.$refs.contactEditingModal.hide();
                         this.showSuccessAlert("Контакт успешно изменен.");
                     })
-                    .catch(() => {//проверять поля
-                        this.$refs.contactEditingModal.checkEditingFieldsIsvalid(contact);
+                    .catch(error => {
+                        if (error.response?.status === 400) {
+                            this.$refs.contactEditingModal.checkEditingFieldsIsvalid(contact);
+                        }
+                        else if (error.response?.status === 409) {
+                            this.$refs.contactEditingModal.setExistPhoneInvalid();
+                        }
                     });
             },
 
@@ -218,7 +223,7 @@
                 setTimeout(() => {
                     this.alertText = "";
                     this.isShowSuccessAlert = false;
-                }, 1500);
+                }, 2000);
             },
 
             showErrorAlert(text) {
@@ -228,7 +233,7 @@
                 setTimeout(() => {
                     this.alertText = "";
                     this.isShowErrorAlert = false;
-                }, 1500);
+                }, 2000);
             }
         }
     };
