@@ -30,11 +30,13 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<List<ContactDto>> GetContacts([FromQuery] string term = "")//TODO: 2 Сделать логирование!
+    public ActionResult<List<ContactDto>> GetContacts([FromQuery] string term = "")
     {
-        if(term is null)
+        if (term is null)
         {
-            return BadRequest("Передано значение null");
+            _logger.LogError("При создании контакта произошла ошибка.");
+
+            return BadRequest("Передано значение null.");
         }
 
         return _getContactsHandler.Handle(term.ToUpper().Trim());
@@ -45,8 +47,15 @@ public class PhoneBookController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            _logger.LogWarning("Переданы не корректные данные контакта.");
+            _logger.LogError("Переданы не корректные данные контакта.");
             return BadRequest(ModelState);
+        }
+
+        if (_createContactHandler.CheckIsPhoneExist(contactDto.Phone))
+        {
+            _logger.LogError("Контакт с таким номером уже существует.");
+
+            return BadRequest("Контакт с таким номером уже существует.");
         }
 
         try
@@ -59,7 +68,7 @@ public class PhoneBookController : ControllerBase
         catch (Exception)
         {
             _logger.LogError("При создании контакта произошла ошибка.");
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
         }
     }
 
@@ -68,7 +77,15 @@ public class PhoneBookController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
+            _logger.LogError("При редактировании контакта произошла ошибка. Не корректно заполнены поля данных.");
             return BadRequest(ModelState);
+        }
+
+        if (_updateContactHandler.CheckIsPhoneExist(contactDto.Phone))
+        {
+            _logger.LogError("При редактировании контакта произошла ошибка. Контакт с таким номером уже существует.");
+
+            return BadRequest("Контакт с таким номером уже существует.");
         }
 
         try
@@ -79,7 +96,9 @@ public class PhoneBookController : ControllerBase
         }
         catch
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
+            _logger.LogError("При создании контакта произошла ошибка.");
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
         }
     }
 
@@ -88,6 +107,8 @@ public class PhoneBookController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
+            _logger.LogError("При удалении контакта произошла ошибка.");
+
             return BadRequest(ModelState);
         }
 
@@ -99,7 +120,9 @@ public class PhoneBookController : ControllerBase
         }
         catch
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
+            _logger.LogError("При удалении контакта произошла ошибка.");
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
         }
     }
 
@@ -108,7 +131,9 @@ public class PhoneBookController : ControllerBase
     {
         if (selectedContactsId is null || selectedContactsId.Count == 0)
         {
-            return BadRequest("Не переданы данные для удаления");
+            _logger.LogError("Не переданы данные для удаления.");
+
+            return BadRequest("Не переданы данные для удаления.");
         }
 
         try
@@ -119,7 +144,9 @@ public class PhoneBookController : ControllerBase
         }
         catch
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера");
+            _logger.LogError("При удалении выбранных контактов произошла ошибка.");
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
         }
     }
 }

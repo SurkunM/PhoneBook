@@ -18,4 +18,9 @@ public class CreateContactHandler
 
         return true;
     }
+
+    public bool CheckIsPhoneExist(string phone)
+    {
+        return _contactsRepository.CheckIsPhoneExist(phone);
+    }
 }

@@ -202,7 +202,7 @@
                         this.$refs.contactEditingModal.hide();
                         this.showSuccessAlert("Контакт успешно изменен.");
                     })
-                    .catch(() => {
+                    .catch(() => {//проверять поля
                         this.$refs.contactEditingModal.checkEditingFieldsIsvalid(contact);
                     });
             },

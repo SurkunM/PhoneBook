@@ -7,7 +7,9 @@ public interface IContactsRepository : IRepository<Contact>
 {
     List<ContactDto> GetContacts(string term);
 
+    Contact? FindContactById(int id);
+
     bool DeleteRangeById(List<int> rangeId);
 
-    Contact? FindContactById(int id);
+    bool CheckIsPhoneExist(string phone);
 }
