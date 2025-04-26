@@ -82,7 +82,6 @@
         <template>
             <all-delete-modal ref="confirmAllDeleteModal" @delete="deleteAllSelected"></all-delete-modal>
         </template>
-
     </v-card>
 </template>
 
@@ -191,7 +190,6 @@
                     .finally(() => {
                         this.$refs.confirmSingleDeleteModal.hide();
                     });
-
 
                 this.$refs.confirmAllDeleteModal.hide();
             },

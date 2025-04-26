@@ -7,7 +7,6 @@
     </v-card-title>
 
     <v-alert text="Контакт успешно создан" type="success" variant="outlined" v-show="isShowSuccessAlert"></v-alert>
-    <v-alert text="Ошибка! Не удалось создать контакт" type="error" variant="outlined" v-show="isShowErrorAlert"></v-alert>
 
     <form @submit.prevent="submitForm">
         <v-text-field v-model.trim="contact.firstName"
@@ -42,7 +41,6 @@
         data() {
             return {
                 isShowSuccessAlert: false,
-                isShowErrorAlert: false,
 
                 contact: {
                     firstName: "",
@@ -131,8 +129,6 @@
                         else if (error.response?.status === 409) {
                             this.setExistPhoneInvalid();
                         }
-                        
-                        this.showErrorAlert();
                     });
             },
 
@@ -141,13 +137,13 @@
                     firstName: "",
                     lastName: "",
                     phone: ""
-                },
+                };
 
-                    this.errors = {
-                        firstName: "",
-                        lastName: "",
-                        phone: ""
-                    }
+                this.errors = {
+                    firstName: "",
+                    lastName: "",
+                    phone: ""
+                };
             },
 
             showSuccessAlert() {
@@ -155,14 +151,6 @@
 
                 setTimeout(() => {
                     this.isShowSuccessAlert = false;
-                }, 1500);
-            },
-
-            showErrorAlert() {
-                this.isShowErrorAlert = true;
-
-                setTimeout(() => {
-                    this.isShowErrorAlert = false;
                 }, 1500);
             }
         }

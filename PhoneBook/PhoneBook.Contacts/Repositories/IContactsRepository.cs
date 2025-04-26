@@ -5,11 +5,11 @@ namespace PhoneBook.Contracts.Repositories;
 
 public interface IContactsRepository : IRepository<Contact>
 {
-    List<ContactDto> GetContacts(string term);
+    Task<List<ContactDto>> GetContactsAsync(string term);
 
-    Contact? FindContactById(int id);
+    Task<Contact?> FindContactByIdAsync(int id);
 
-    bool DeleteRangeById(List<int> rangeId);
+    Task<bool> DeleteRangeByIdAsync(List<int> rangeId);
 
-    bool CheckIsPhoneExist(ContactDto contactDto);
+    Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto);
 }

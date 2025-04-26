@@ -6,11 +6,11 @@ public interface IRepository
 
 public interface IRepository<T> : IRepository
 {
-    void Create(T entity);
+    Task CreateAsync(T entity);
 
-    void Update(T entity);
+    Task UpdateAsync(T entity);
 
-    void Delete(T entity);
+    Task DeleteAsync(T entity);
 
-    void Save();
+    Task SaveAsync();
 }

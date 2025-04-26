@@ -30,7 +30,7 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<List<ContactDto>> GetContacts([FromQuery] string term = "")
+    public async Task<ActionResult<List<ContactDto>>> GetContacts([FromQuery] string term = "")
     {
         if (term is null)
         {
@@ -39,11 +39,22 @@ public class PhoneBookController : ControllerBase
             return BadRequest("Передано значение null.");
         }
 
-        return _getContactsHandler.Handle(term.ToUpper().Trim());
+        try
+        {
+            var contacts = await _getContactsHandler.HandleAsync(term);
+
+            return Ok(contacts);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ошибка при получении контактов");
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
+        }
     }
 
     [HttpPost]
-    public IActionResult CreateContact(ContactDto contactDto)
+    public async Task<IActionResult> CreateContact(ContactDto contactDto)
     {
         if (!ModelState.IsValid)
         {
@@ -52,7 +63,7 @@ public class PhoneBookController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        if (_createContactHandler.CheckIsPhoneExist(contactDto))
+        if (await _createContactHandler.CheckIsPhoneExistAsync(contactDto))
         {
             _logger.LogError("Контакт с таким номером уже существует.");
 
@@ -62,7 +73,7 @@ public class PhoneBookController : ControllerBase
         try
         {
             _logger.LogInformation("Создание контакта.");
-            _createContactHandler.Handle(contactDto);
+            await _createContactHandler.HandleAsync(contactDto);
 
             return Ok();
         }
@@ -74,7 +85,7 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult UpdateContact(ContactDto contactDto)
+    public async Task<IActionResult> UpdateContact(ContactDto contactDto)
     {
         if (!ModelState.IsValid)
         {
@@ -82,7 +93,7 @@ public class PhoneBookController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        if (_updateContactHandler.CheckIsPhoneExist(contactDto))
+        if (await _updateContactHandler.CheckIsPhoneExistAsync(contactDto))
         {
             _logger.LogError("Попытка добавить номер телефона, который уже существует.");
 
@@ -91,7 +102,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            _updateContactHandler.Handle(contactDto);
+            await _updateContactHandler.HandleAsync(contactDto);
 
             return Ok();
         }
@@ -104,7 +115,7 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpDelete]
-    public IActionResult DeleteContact([FromBody] int id)
+    public async Task<IActionResult> DeleteContact([FromBody] int id)
     {
         if (!ModelState.IsValid)
         {
@@ -115,7 +126,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            var isDelete = _deleteContactHandler.DeleteSingleContactHandle(id);
+            var isDelete = await _deleteContactHandler.DeleteSingleContactHandleAsync(id);
 
             if (!isDelete)
             {
@@ -134,7 +145,7 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpDelete]
-    public IActionResult DeleteAllSelectedContact([FromBody] List<int> selectedContactsId)
+    public async Task<IActionResult> DeleteAllSelectedContact([FromBody] List<int> selectedContactsId)
     {
         if (selectedContactsId is null || selectedContactsId.Count == 0)
         {
@@ -145,7 +156,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            _deleteContactHandler.DeleteAllSelectedContactHandle(selectedContactsId);
+            await _deleteContactHandler.DeleteAllSelectedContactHandleAsync(selectedContactsId);
 
             return Ok();
         }

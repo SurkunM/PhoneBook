@@ -12,15 +12,15 @@ public class UpdateContactHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public bool Handle(ContactDto contactDto)
+    public async Task<bool> HandleAsync(ContactDto contactDto)
     {
-        _contactsRepository.Update(contactDto.ToModel());
+        await _contactsRepository.UpdateAsync(contactDto.ToModel());
 
         return true;
     }
 
-    public bool CheckIsPhoneExist(ContactDto contactDto)
+    public async Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
     {
-        return _contactsRepository.CheckIsPhoneExist(contactDto);
+        return await _contactsRepository.CheckIsPhoneExistAsync(contactDto);
     }
 }

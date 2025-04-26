@@ -15,14 +15,14 @@ public class BaseEfRepository<T> : IRepository<T> where T : class
         _dbSet = _dbContext.Set<T>();
     }
 
-    public void Create(T entity)
+    public async Task CreateAsync(T entity)
     {
-        _dbSet.Add(entity);
+        await _dbSet.AddAsync(entity);
 
-        Save();
+        await SaveAsync();
     }
 
-    public void Delete(T entity)
+    public async Task DeleteAsync(T entity)
     {
         if (_dbContext.Entry(entity).State == EntityState.Detached)
         {
@@ -31,19 +31,19 @@ public class BaseEfRepository<T> : IRepository<T> where T : class
 
         _dbSet.Remove(entity);
 
-        Save();
+        await SaveAsync();
     }
 
-    public void Update(T entity)
+    public async Task UpdateAsync(T entity)
     {
         _dbSet.Attach(entity);
         _dbContext.Entry(entity).State = EntityState.Modified;
 
-        Save();
+        await SaveAsync();
     }
 
-    public void Save()
+    public async Task SaveAsync()
     {
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
     }
 }

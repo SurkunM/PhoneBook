@@ -48,6 +48,7 @@
         data() {
             return {
                 isShow: false,
+
                 editedContact: {
                     id: 0,
                     firstName: "",
@@ -126,7 +127,7 @@
                     firstName: "",
                     lastName: "",
                     phone: ""
-                }
+                };
             },
 
             show(contact) {

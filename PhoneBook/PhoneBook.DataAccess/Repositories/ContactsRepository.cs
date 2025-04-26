@@ -10,11 +10,13 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 {
     public ContactsRepository(PhoneBookDbContext dbContext) : base(dbContext) { }
 
-    public List<ContactDto> GetContacts(string term)
+    public async Task<List<ContactDto>> GetContactsAsync(string term)
     {
-        if (term.Length == 0)
+        term = term.Trim();
+
+        if (string.IsNullOrEmpty(term))
         {
-            return _dbSet
+            return await _dbSet
                 .AsNoTracking()
                 .Select(c => new ContactDto
                 {
@@ -25,10 +27,12 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
                 })
                 .OrderBy(c => c.LastName)
                 .ThenBy(c => c.FirstName)
-                .ToList();
+                .ToListAsync();
         }
 
-        return _dbSet
+        term = term.ToUpper();
+
+        return await _dbSet
             .AsNoTracking()
             .Where(c => c.FirstName.ToUpper().Contains(term)
                 || c.LastName.ToUpper().Contains(term)
@@ -42,30 +46,30 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
             })
             .OrderBy(c => c.LastName)
             .ThenBy(c => c.FirstName)
-            .ToList();
+            .ToListAsync();
     }
 
-    public bool DeleteRangeById(List<int> rangeId)
+    public async Task<bool> DeleteRangeByIdAsync(List<int> rangeId)
     {
-        var contacts = _dbSet
+        var contacts = await _dbSet
             .AsNoTracking()
             .Where(c => rangeId.Contains(c.Id))
-            .ToList();
+            .ToListAsync();
 
         _dbSet.RemoveRange(contacts);
 
-        Save();
+        await SaveAsync();
 
         return true;
     }
 
-    public Contact? FindContactById(int id)
+    public async Task<Contact?> FindContactByIdAsync(int id)
     {
-        return _dbSet.FirstOrDefault(c => c.Id == id);
+        return await _dbSet.FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public bool CheckIsPhoneExist(ContactDto contactDto)
+    public async Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
     {
-        return _dbSet.Any(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
+        return await _dbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
     }
 }

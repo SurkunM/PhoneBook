@@ -11,23 +11,23 @@ public class DeleteContactHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public bool DeleteSingleContactHandle(int id)
+    public async Task<bool> DeleteSingleContactHandleAsync(int id)
     {
-        var contact = _contactsRepository.FindContactById(id);
+        var contact = await _contactsRepository.FindContactByIdAsync(id);
 
         if (contact is null)
         {
             return false;
         }
 
-        _contactsRepository.Delete(contact);
+        await _contactsRepository.DeleteAsync(contact);
 
         return true;
     }
 
-    public bool DeleteAllSelectedContactHandle(List<int> rangeId)
+    public async Task<bool> DeleteAllSelectedContactHandleAsync(List<int> rangeId)
     {
-        _contactsRepository.DeleteRangeById(rangeId);
+        await _contactsRepository.DeleteRangeByIdAsync(rangeId);
 
         return true;
     }

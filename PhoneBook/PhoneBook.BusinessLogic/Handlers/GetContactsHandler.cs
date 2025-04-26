@@ -12,8 +12,8 @@ public class GetContactsHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public List<ContactDto> Handle(string term)
+    public async Task<List<ContactDto>> HandleAsync(string term)
     {
-        return _contactsRepository.GetContacts(term);
+        return await _contactsRepository.GetContactsAsync(term);
     }
 }
