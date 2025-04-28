@@ -8,6 +8,10 @@ namespace PhoneBook.DataAccess.Repositories;
 
 public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 {
+    public bool IsDescending { get ; set ; }
+
+    public string OrderBy { get; set; } = default!;
+
     public ContactsRepository(PhoneBookDbContext dbContext) : base(dbContext) { }
 
     public async Task<List<ContactDto>> GetContactsAsync(string term)

@@ -30,7 +30,10 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ContactDto>>> GetContacts([FromQuery] string term = "")
+    public async Task<ActionResult<List<ContactDto>>> GetContacts(
+            [FromQuery] string term = "",
+            [FromQuery] string sortBy = "lastName",
+            [FromQuery] bool isDescending = false)
     {
         if (term is null)
         {
@@ -41,6 +44,8 @@ public class PhoneBookController : ControllerBase
 
         try
         {
+            _getContactsHandler.SetSortingParameters(sortBy, isDescending);
+
             var contacts = await _getContactsHandler.HandleAsync(term);
 
             return Ok(contacts);

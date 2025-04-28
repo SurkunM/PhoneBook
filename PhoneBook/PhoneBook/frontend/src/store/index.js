@@ -7,6 +7,9 @@ export default createStore({
         selectedContactsId: [],
         term: "",
 
+        columnSortBy: "",
+        isDescending: false,
+
         isAllSelect: false,
         isLoading: false
     },
@@ -18,6 +21,13 @@ export default createStore({
 
         setTerm(state, value) {
             state.term = value;
+        },
+
+        setSortingParameters(state, payload) {
+            const { sortBy, isDesc } = payload;
+
+            state.columnSortBy = sortBy;
+            state.isDescending = isDesc;
         },
 
         setContacts(state, contacts) {
@@ -72,11 +82,22 @@ export default createStore({
             commit("removeContactId", id);
         },
 
+        sortByColumn({ commit, dispatch }, { sortBy, isDesc }) {
+            commit("setSortingParameters", { sortBy, isDesc });
+            dispatch("loadContacts");
+        },
+
         async loadContacts({ commit, state }) {
             commit("setIsLoading", true);
 
             try {
-                const response = await axios.get("/api/PhoneBook/GetContacts", { params: { term: state.term } });
+                const response = await axios.get("/api/PhoneBook/GetContacts", {
+                    params: {
+                        term: state.term,
+                        sortBy: state.columnSortBy,
+                        isDescending: state.isDescending
+                    }
+                });
                 commit("setContacts", response.data);
             } finally {
                 commit("setIsLoading", false);

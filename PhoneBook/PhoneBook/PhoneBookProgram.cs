@@ -49,7 +49,7 @@ public class PhoneBookProgram
 
         if (!app.Environment.IsDevelopment())
         {
-            app.UseExceptionHandler("/Home/Error");//TODO: 5. Уточнить("/Home/Error")
+            app.UseExceptionHandler("/Home/Error");
             app.UseHsts();
         }
 

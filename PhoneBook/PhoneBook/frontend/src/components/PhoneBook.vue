@@ -46,6 +46,18 @@
                       :items="contacts"
                       :item-value="id">
 
+            <template v-slot:[`header.lastName`]="{ column }">
+                <button @click="sortBy(column)">Фамилия</button>
+            </template>
+
+            <template v-slot:[`header.firstName`]="{ column }">
+                <button @click="sortBy(column)">Имя</button>
+            </template>
+
+            <template v-slot:[`header.phone`]="{ column }">
+                <button @click="sortBy(column)">Телефон</button>
+            </template>
+
             <template v-slot:[`header.data-table-select`]>
                 <v-checkbox v-model="isAllSelect"
                             @change="switchAllSelect"
@@ -77,8 +89,8 @@
 
         <template>
             <editing-modal ref="contactEditingModal" @save="saveEditing"></editing-modal>
-
         </template>
+
         <template>
             <all-delete-modal ref="confirmAllDeleteModal" @delete="deleteAllSelected"></all-delete-modal>
         </template>
@@ -113,11 +125,14 @@
                 headers: [
                     { value: "data-table-select" },
                     { value: "id", title: "№" },
-                    { value: "lastName", title: "Фамилия", sortable: true },
-                    { value: "firstName", title: "Имя", sortable: true },
+                    { value: "lastName", title: "Фамилия" },
+                    { value: "firstName", title: "Имя" },
                     { value: "phone", title: "Телефон" },
                     { value: "actions", title: "" }
-                ]
+                ],
+
+                sortByColumn: "lastName",
+                sortDesc: false,
             };
         },
 
@@ -144,7 +159,7 @@
 
         methods: {
             searchContacts() {
-                this.$store.dispatch("searchContacts", this.term); //TODO: 3. Реализовать сортировку по клику headers
+                this.$store.dispatch("searchContacts", this.term); //TODO: 1. Реализовать сортировку по клику headers
             },
 
             cancelSearch() {
@@ -232,6 +247,20 @@
                     this.alertText = "";
                     this.isShowErrorAlert = false;
                 }, 2000);
+            },
+
+            sortBy(column) {
+                if (this.sortByColumn === column.value) {
+                    this.sortDesc = !this.sortDesc;
+                } else {
+                    this.sortDesc = false;
+                    this.sortByColumn = column.value;
+                }
+
+                this.$store.dispatch("sortByColumn", {
+                    sortBy: this.sortByColumn,
+                    isDesc: this.sortDesc
+                });
             }
         }
     };

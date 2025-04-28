@@ -12,6 +12,12 @@ public class GetContactsHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
+    public void SetSortingParameters(string orderBy, bool isDescending)
+    {
+        _contactsRepository.OrderBy = orderBy;
+        _contactsRepository.IsDescending = isDescending;
+    }
+
     public async Task<List<ContactDto>> HandleAsync(string term)
     {
         return await _contactsRepository.GetContactsAsync(term);
