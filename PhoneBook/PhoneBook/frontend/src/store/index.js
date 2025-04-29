@@ -105,7 +105,7 @@ export default createStore({
                         isDescending: state.isDescending
                     }
                 });
-                commit("setContacts", response.data);
+                commit("setContacts", response.data.contactsDto);
             } finally {
                 commit("setIsLoading", false);
             }

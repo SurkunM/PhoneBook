@@ -1,5 +1,6 @@
 ﻿using PhoneBook.Contracts.Dto;
 using PhoneBook.Contracts.Repositories;
+using PhoneBook.Contracts.Responses;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
@@ -18,7 +19,13 @@ public class GetContactsHandler
         _contactsRepository.IsDescending = isDescending;
     }
 
-    public async Task<List<ContactDto>> HandleAsync(string term)
+    public void SetPagingParameters(int pageNumber, int pageSize)
+    {
+        _contactsRepository.PageNumber = pageNumber;
+        _contactsRepository.PageSize = pageSize;
+    }
+
+    public async Task<PhoneBookPage> HandleAsync(string term)
     {
         return await _contactsRepository.GetContactsAsync(term);
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PhoneBook.BusinessLogic.Handlers;
 using PhoneBook.Contracts.Dto;
+using PhoneBook.Contracts.Responses;
 
 namespace PhoneBook.Controllers;
 
@@ -30,10 +31,12 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<ContactDto>>> GetContacts(
+    public async Task<ActionResult<PhoneBookPage>> GetContacts(
             [FromQuery] string term = "",
             [FromQuery] string sortBy = "lastName",
-            [FromQuery] bool isDescending = false)
+            [FromQuery] bool isDescending = false,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
     {
         if (term is null || sortBy is null)
         {
@@ -42,8 +45,16 @@ public class PhoneBookController : ControllerBase
             return BadRequest("Передано значение null.");
         }
 
+        if (pageNumber < 1 || pageSize < 1)
+        {
+            _logger.LogError("Ошибка! При запросе на получение контакта передано не корректное значение номера или размера страницы.");
+
+            return BadRequest("Передано не корректное значение номера или размера страницы.");
+        }
+
         try
         {
+            _getContactsHandler.SetPagingParameters(pageNumber, pageSize);
             _getContactsHandler.SetSortingParameters(sortBy, isDescending);
 
             var contacts = await _getContactsHandler.HandleAsync(term);

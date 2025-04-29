@@ -83,6 +83,9 @@
             </template>
         </v-data-table>
 
+        <template v-slot:bottom="{page = 1}">
+            <v-btn @click="add(page)"></v-btn>
+        </template>
         <template>
             <single-delete-modal ref="confirmSingleDeleteModal" @delete="deleteContact"></single-delete-modal>
         </template>
@@ -160,6 +163,9 @@
         methods: {
             searchContacts() {
                 this.$store.dispatch("searchContacts", this.term);
+            },
+            add(page) {
+                alert(page);
             },
 
             cancelSearch() {
