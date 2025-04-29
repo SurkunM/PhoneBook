@@ -14,7 +14,7 @@ public class GetContactsHandler
 
     public void SetSortingParameters(string orderBy, bool isDescending)
     {
-        _contactsRepository.OrderBy = orderBy;
+        _contactsRepository.OrderByProperty = orderBy;
         _contactsRepository.IsDescending = isDescending;
     }
 

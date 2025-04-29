@@ -3,54 +3,57 @@ using PhoneBook.Contracts.Dto;
 using PhoneBook.Contracts.Repositories;
 using PhoneBook.DataAccess.Repositories.BaseAbstractions;
 using PhoneBook.Model;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace PhoneBook.DataAccess.Repositories;
 
 public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 {
-    public bool IsDescending { get ; set ; }
+    public bool IsDescending { get; set; }
 
-    public string OrderBy { get; set; } = default!;
+    public string OrderByProperty { get; set; } = default!;
 
     public ContactsRepository(PhoneBookDbContext dbContext) : base(dbContext) { }
 
+    private static Expression<Func<ContactDto, object>> CreateSortExpression(string propertyName)
+    {
+        var propertyParameter = Expression.Parameter(typeof(ContactDto), "c");
+
+        var property = typeof(ContactDto)
+            .GetProperty(propertyName,
+            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)
+            ?? throw new ArgumentException($"Передано не допустимое значение: {propertyName}");
+
+        var propertyAccess = Expression.MakeMemberAccess(propertyParameter, property);
+
+        return Expression.Lambda<Func<ContactDto, object>>(Expression.Convert(propertyAccess, typeof(object)), propertyParameter);
+    }
+
     public async Task<List<ContactDto>> GetContactsAsync(string term)
     {
-        term = term.Trim();
+        var queryableSbSet = _dbSet.AsNoTracking();
 
-        if (string.IsNullOrEmpty(term))
+        if (!string.IsNullOrEmpty(term))
         {
-            return await _dbSet
-                .AsNoTracking()
+            term = term.Trim().ToUpper();
+            queryableSbSet.Where(c => c.FirstName.ToUpper().Contains(term) || c.LastName.ToUpper().Contains(term) || c.Phone.ToUpper().Contains(term));
+        }
+
+        var queryableDto = queryableSbSet
                 .Select(c => new ContactDto
                 {
                     Id = c.Id,
                     FirstName = c.FirstName,
                     LastName = c.LastName,
-                    Phone = c.Phone,
-                })
-                .OrderBy(c => c.LastName)
-                .ThenBy(c => c.FirstName)
-                .ToListAsync();
-        }
+                    Phone = c.Phone
+                });
 
-        term = term.ToUpper();
+        var orderByExpression = CreateSortExpression(OrderByProperty);
 
-        return await _dbSet
-            .AsNoTracking()
-            .Where(c => c.FirstName.ToUpper().Contains(term)
-                || c.LastName.ToUpper().Contains(term)
-                || c.Phone.ToUpper().Contains(term))
-            .Select(c => new ContactDto
-            {
-                Id = c.Id,
-                FirstName = c.FirstName,
-                LastName = c.LastName,
-                Phone = c.Phone,
-            })
-            .OrderBy(c => c.LastName)
-            .ThenBy(c => c.FirstName)
-            .ToListAsync();
+        queryableDto = IsDescending ? queryableDto.OrderByDescending(orderByExpression) : queryableDto.OrderBy(orderByExpression);
+
+        return await queryableDto.ToListAsync();
     }
 
     public async Task<bool> DeleteRangeByIdAsync(List<int> rangeId)

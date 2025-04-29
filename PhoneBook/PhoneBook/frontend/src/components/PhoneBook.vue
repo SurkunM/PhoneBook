@@ -159,7 +159,7 @@
 
         methods: {
             searchContacts() {
-                this.$store.dispatch("searchContacts", this.term); //TODO: 1. Реализовать сортировку по клику headers
+                this.$store.dispatch("searchContacts", this.term);
             },
 
             cancelSearch() {

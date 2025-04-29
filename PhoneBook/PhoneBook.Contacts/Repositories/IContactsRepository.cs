@@ -7,7 +7,7 @@ public interface IContactsRepository : IRepository<Contact>
 {
     bool IsDescending { get; set; }
 
-    string OrderBy { get; set; }
+    string OrderByProperty { get; set; }
 
     Task<List<ContactDto>> GetContactsAsync(string term);
 

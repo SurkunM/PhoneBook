@@ -76,7 +76,9 @@
                     isValid = false;
                 }
 
-                if (isNaN(Number(contact.phone))) {
+                const phoneNumber = Number(contact.phone);
+
+                if (isNaN(phoneNumber) || phoneNumber < 0) {
                     this.errors.phone = "Неверный формат номера телефона";
                     isValid = false;
                 }

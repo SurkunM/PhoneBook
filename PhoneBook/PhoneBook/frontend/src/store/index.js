@@ -87,6 +87,13 @@ export default createStore({
             dispatch("loadContacts");
         },
 
+        searchContacts({ commit, dispatch }, term) {
+            commit("setTerm", term);
+            commit("switchAllCheckbox", true);
+
+            dispatch("loadContacts");
+        },
+
         async loadContacts({ commit, state }) {
             commit("setIsLoading", true);
 
@@ -155,13 +162,6 @@ export default createStore({
             } finally {
                 commit("setIsLoading", false);
             }
-        },
-
-        searchContacts({ commit, dispatch }, term) {
-            commit("setTerm", term);
-            commit("switchAllCheckbox", true);
-
-            dispatch("loadContacts");
         }
     },
 
