@@ -11,18 +11,18 @@
 
             <v-form @submit.prevent="submitForm">
                 <v-card-text>
-                    <v-text-field v-model.trim="editedContact.firstName"
-                                  label="Имя"
-                                  :error-messages="errors.firstName"
-                                  autocomplete="off"
-                                  @change="checkFirstNameFieldComplete">
-                    </v-text-field>
-
                     <v-text-field v-model.trim="editedContact.lastName"
                                   label="Фамилия"
                                   :error-messages="errors.lastName"
                                   autocomplete="off"
                                   @change="checkLastNameFieldComplete">
+                    </v-text-field>
+
+                    <v-text-field v-model.trim="editedContact.firstName"
+                                  label="Имя"
+                                  :error-messages="errors.firstName"
+                                  autocomplete="off"
+                                  @change="checkFirstNameFieldComplete">
                     </v-text-field>
 
                     <v-text-field v-model.trim="editedContact.phone"

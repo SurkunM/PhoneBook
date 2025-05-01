@@ -63,6 +63,12 @@ export default createStore({
             }
         },
 
+        setSelectedCheckbox(state) {
+            state.contacts
+                .filter(c => state.selectedContactsId.includes(c.id))
+                .forEach(c => c.isChecked = true);
+        },
+
         addContactId(state, id) {
             state.selectedContactsId.push(id);
 
@@ -97,6 +103,7 @@ export default createStore({
             }).then(response => {
                 commit("setContacts", response.data.contactsDto);
                 commit("setContactsCount", response.data.totalCount);
+                commit("setSelectedCheckbox");
             }).finally(() => {
                 commit("setIsLoading", false);
             })
@@ -122,8 +129,8 @@ export default createStore({
                 data: id
             })
                 .then(() => {
-                    dispatch("loadContacts");
                     commit("removeContactId", id);
+                    dispatch("loadContacts");
                 })
                 .finally(() => {
                     commit("setIsLoading", false);
@@ -138,8 +145,8 @@ export default createStore({
                 data: state.selectedContactsId
             })
                 .then(() => {
-                    dispatch("loadContacts");
                     commit("switchAllCheckbox", true);
+                    dispatch("loadContacts");
                 })
                 .finally(() => {
                     commit("setIsLoading", false);

@@ -151,7 +151,7 @@
         created() {
             this.$store.dispatch("loadContacts")
                 .catch(() => {
-                    this.showErrorAlert("Ошибка! Не удалось загрузить контакты.");
+                    this.showErrorAlert("Ошибка! Не удалось загрузить контакты.");//TODO: Разобратся с индексами(всегда 1-10).Создать методв в store который индексирует item
                 });
         },
 
@@ -220,7 +220,7 @@
 
             deleteAllSelected() {
                 this.$store.dispatch("deleteAllSelectedContacts")
-                    .then(() => {
+                    .then(() => {                        
                         this.showSuccessAlert("Выбранные контакты успешно удалены.");
                     })
                     .catch(() => {
@@ -234,7 +234,7 @@
             },
 
             saveEditing(contact) {
-                this.$store.dispatch("updateContat", contact)
+                this.$store.dispatch("updateContact", contact)
                     .then(() => {
                         this.$refs.contactEditingModal.hide();
                         this.showSuccessAlert("Контакт успешно изменен.");

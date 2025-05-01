@@ -9,18 +9,18 @@
     <v-alert text="Контакт успешно создан" type="success" variant="outlined" v-show="isShowSuccessAlert"></v-alert>
 
     <form @submit.prevent="submitForm">
-        <v-text-field v-model.trim="contact.firstName"
-                      :error-messages="errors.firstName"
-                      @change="checkFirstNameFieldComplete"
-                      autocomplete="off"
-                      label="Имя">
-        </v-text-field>
-
         <v-text-field v-model.trim="contact.lastName"
                       :error-messages="errors.lastName"
                       @change="checkLastNameFieldComplete"
                       autocomplete="off"
                       label="Фамилия">
+        </v-text-field>
+
+        <v-text-field v-model.trim="contact.firstName"
+                      :error-messages="errors.firstName"
+                      @change="checkFirstNameFieldComplete"
+                      autocomplete="off"
+                      label="Имя">
         </v-text-field>
 
         <v-text-field v-model.trim="contact.phone"
