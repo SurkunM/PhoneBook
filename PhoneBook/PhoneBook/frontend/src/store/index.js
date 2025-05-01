@@ -4,13 +4,18 @@ import axios from "axios";
 export default createStore({
     state: {
         contacts: [],
-        selectedContactsId: [],
         term: "",
+
+        contactsCount: 0,
+        pageNumber: 1,
+        pageSize: 10,
+
+        selectedContactsId: [],
+        isAllSelect: false,
 
         columnSortBy: "",
         isDescending: false,
 
-        isAllSelect: false,
         isLoading: false
     },
 
@@ -23,6 +28,10 @@ export default createStore({
             state.term = value;
         },
 
+        setPageNumber(state, value) {
+            state.pageNumber = value;
+        },
+
         setSortingParameters(state, payload) {
             const { sortBy, isDesc } = payload;
 
@@ -32,6 +41,10 @@ export default createStore({
 
         setContacts(state, contacts) {
             state.contacts = contacts;
+        },
+
+        setContactsCount(state, count) {
+            state.contactsCount = count;
         },
 
         switchAllCheckbox(state, isSelect) {
@@ -70,6 +83,81 @@ export default createStore({
     },
 
     actions: {
+        loadContacts({ commit, state }) {
+            commit("setIsLoading", true);
+
+            return axios.get("/api/PhoneBook/GetContacts", {
+                params: {
+                    term: state.term,
+                    sortBy: state.columnSortBy,
+                    isDescending: state.isDescending,
+                    pageNumber: state.pageNumber,
+                    pageSize: state.pageSize
+                }
+            }).then(response => {
+                commit("setContacts", response.data.contactsDto);
+                commit("setContactsCount", response.data.totalCount);
+            }).finally(() => {
+                commit("setIsLoading", false);
+            })
+        },
+
+        createContact({ commit, dispatch }, contact) {
+            commit("setIsLoading", true);
+
+            return axios.post("/api/PhoneBook/CreateContact", contact)
+                .then(() => {
+                    dispatch("loadContacts");
+                })
+                .finally(() => {
+                    commit("setIsLoading", false);
+                });
+        },
+
+        deleteContact({ commit, dispatch }, id) {
+            commit("setIsLoading", true);
+
+            return axios.delete("/api/PhoneBook/DeleteContact", {
+                headers: { 'Content-Type': "application/json" },
+                data: id
+            })
+                .then(() => {
+                    dispatch("loadContacts");
+                    commit("removeContactId", id);
+                })
+                .finally(() => {
+                    commit("setIsLoading", false);
+                });
+        },
+
+        deleteAllSelectedContacts({ commit, dispatch, state }) {
+            commit("setIsLoading", true);
+
+            return axios.delete("/api/PhoneBook/DeleteAllSelectedContact", {
+                headers: { 'Content-Type': "application/json" },
+                data: state.selectedContactsId
+            })
+                .then(() => {
+                    dispatch("loadContacts");
+                    commit("switchAllCheckbox", true);
+                })
+                .finally(() => {
+                    commit("setIsLoading", false);
+                });
+        },
+
+        updateContact({ commit, dispatch }, contact) {
+            commit("setIsLoading", true);
+
+            return axios.post("/api/PhoneBook/UpdateContact", contact)
+                .then(() => {
+                    dispatch("loadContacts");
+                })
+                .finally(() => {
+                    commit("setIsLoading", false);
+                });
+        },
+
         switchAllSelect({ commit, state }) {
             commit("switchAllCheckbox", state.isAllSelect);
         },
@@ -94,80 +182,19 @@ export default createStore({
             dispatch("loadContacts");
         },
 
-        async loadContacts({ commit, state }) {
-            commit("setIsLoading", true);
-
-            try {
-                const response = await axios.get("/api/PhoneBook/GetContacts", {
-                    params: {
-                        term: state.term,
-                        sortBy: state.columnSortBy,
-                        isDescending: state.isDescending
-                    }
-                });
-                commit("setContacts", response.data.contactsDto);
-            } finally {
-                commit("setIsLoading", false);
-            }
-        },
-
-        async createContact({ commit, dispatch }, contact) {
-            commit("setIsLoading", true);
-
-            try {
-                await axios.post("/api/PhoneBook/CreateContact", contact);
-                dispatch("loadContacts");
-            } finally {
-                commit("setIsLoading", false);
-            }
-        },
-
-        async deleteContact({ commit, dispatch }, id) {
-            commit("setIsLoading", true);
-
-            try {
-                await axios.delete("/api/PhoneBook/DeleteContact", {
-                    headers: { 'Content-Type': "application/json" },
-                    data: id
-                });
-                dispatch("loadContacts");
-                commit("removeContactId", id);
-            } finally {
-                commit("setIsLoading", false);
-            }
-        },
-
-        async deleteAllSelectedContacts({ commit, dispatch, state }) {
-            commit("setIsLoading", true);
-
-            try {
-                await axios.delete("/api/PhoneBook/DeleteAllSelectedContact", {
-                    headers: { 'Content-Type': "application/json" },
-                    data: state.selectedContactsId
-                });
-                dispatch("loadContacts");
-
-                commit("switchAllCheckbox", true);
-            } finally {
-                commit("setIsLoading", false);
-            }
-        },
-
-        async updateContat({ commit, dispatch }, contact) {
-            commit("setIsLoading", true);
-
-            try {
-                await axios.post("/api/PhoneBook/UpdateContact", contact);
-                dispatch("loadContacts");
-            } finally {
-                commit("setIsLoading", false);
-            }
+        navigateToPage({ commit, dispatch }, nextPage) {
+            commit("setPageNumber", nextPage);
+            dispatch("loadContacts");
         }
     },
 
     getters: {
         contacts(state) {
             return state.contacts;
+        },
+
+        contactsCount(state) {
+            return state.contactsCount;
         },
 
         selectedCount(state) {
@@ -180,6 +207,10 @@ export default createStore({
 
         isAllSelect(state) {
             return state.isAllSelect || (state.selectedContactsId.length === state.contacts.length && state.selectedContactsId.length > 0);
+        },
+
+        pageSize(state) {
+            return state.pageSize;
         }
     }
 });

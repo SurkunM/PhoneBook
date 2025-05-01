@@ -42,9 +42,12 @@
                 </template>
             </v-text-field>
         </template>
+
         <v-data-table :headers="headers"
                       :items="contacts"
-                      :item-value="id">
+                      :item-value="id"
+                      hide-default-footer 
+                      :items-per-page="contactsPerPage">
 
             <template v-slot:[`header.lastName`]="{ column }">
                 <button @click="sortBy(column)">Фамилия</button>
@@ -83,9 +86,13 @@
             </template>
         </v-data-table>
 
-        <template v-slot:bottom="{page = 1}">
-            <v-btn @click="add(page)"></v-btn>
-        </template>
+        <v-pagination v-model="currentPage"
+                      :length="pagesCount"
+                      @update:modelValue="switchPage"
+                      circle
+                      color="primary">
+        </v-pagination>
+
         <template>
             <single-delete-modal ref="confirmSingleDeleteModal" @delete="deleteContact"></single-delete-modal>
         </template>
@@ -134,6 +141,8 @@
                     { value: "actions", title: "" }
                 ],
 
+                currentPage: 1,
+
                 sortByColumn: "lastName",
                 sortDesc: false,
             };
@@ -157,15 +166,24 @@
 
             enabledButton() {
                 return this.$store.getters.hasSelected;
-            }
+            },
+
+            contactsPerPage() {
+                return this.$store.getters.pageSize;
+            },
+
+            pagesCount() {
+                return Math.ceil(this.$store.getters.contactsCount / this.contactsPerPage);
+            },
         },
 
         methods: {
             searchContacts() {
                 this.$store.dispatch("searchContacts", this.term);
             },
-            add(page) {
-                alert(page);
+
+            switchPage(nextPage) {
+                this.$store.dispatch("navigateToPage", nextPage);
             },
 
             cancelSearch() {

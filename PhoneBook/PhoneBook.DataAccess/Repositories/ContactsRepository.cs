@@ -15,8 +15,8 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
     private readonly ILogger<ContactsRepository> _logger;
 
     public int PageNumber { get; set; }
-
-    public int PageSize { get; set; }
+    //TODO: 2.Изменить свойства в интерфейсе на методы и в классе создать приватные поля так же метод который бы сбрасывал поля на дефолтные
+    public int PageSize { get; set; }//TODO: 3. Номер страницы мб и не нужен!
 
     public bool IsDescending { get; set; }
 
@@ -64,7 +64,7 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
             queryableSbSet = queryableSbSet.Where(c => c.FirstName.ToUpper().Contains(term) || c.LastName.ToUpper().Contains(term) || c.Phone.ToUpper().Contains(term));
         }
 
-        var queryableDto = queryableSbSet
+        var queryableContactsDto = queryableSbSet
             .Select(c => new ContactDto
             {
                 Id = c.Id,
@@ -75,11 +75,11 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
         var orderByExpression = CreateSortExpression(OrderByProperty);
 
-        queryableDto = IsDescending ? queryableDto.OrderByDescending(orderByExpression) : queryableDto.OrderBy(orderByExpression);
+        queryableContactsDto = IsDescending ? queryableContactsDto.OrderByDescending(orderByExpression) : queryableContactsDto.OrderBy(orderByExpression);
 
         var totalCount = await _dbSet.CountAsync();
 
-        var contactsDtoSorted = await queryableDto
+        var contactsDtoSorted = await queryableContactsDto
             .Skip((PageNumber - 1) * PageSize)
             .Take(PageSize)
             .ToListAsync();
