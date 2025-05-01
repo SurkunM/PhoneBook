@@ -15,14 +15,12 @@ public class GetContactsHandler
 
     public void SetSortingParameters(string orderBy, bool isDescending)
     {
-        _contactsRepository.OrderByProperty = orderBy;
-        _contactsRepository.IsDescending = isDescending;
+        _contactsRepository.SetSortingParameters(orderBy, isDescending);
     }
 
     public void SetPagingParameters(int pageNumber, int pageSize)
     {
-        _contactsRepository.PageNumber = pageNumber;
-        _contactsRepository.PageSize = pageSize;
+        _contactsRepository.SetPagingParameters(pageNumber, pageSize);
     }
 
     public async Task<PhoneBookPage> HandleAsync(string term)

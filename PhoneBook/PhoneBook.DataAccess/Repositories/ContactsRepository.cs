@@ -14,43 +14,43 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 {
     private readonly ILogger<ContactsRepository> _logger;
 
-    public int PageNumber { get; set; }
-    //TODO: 2.Изменить свойства в интерфейсе на методы и в классе создать приватные поля так же метод который бы сбрасывал поля на дефолтные
-    public int PageSize { get; set; }//TODO: 3. Номер страницы мб и не нужен!
+    private int _pageNumber;
 
-    public bool IsDescending { get; set; }
+    private int _pageSize;
 
-    public string OrderByProperty { get; set; } = default!;
+    private bool _isDescending;
+
+    private string _orderByPropertyName = "";
 
     public ContactsRepository(PhoneBookDbContext dbContext, ILogger<ContactsRepository> logger) : base(dbContext)
     {
         _logger = logger;
     }
 
+    private static Expression<Func<ContactDto, object>> GetPropertyExpression(string propertyName)
+    {
+        var parameter = Expression.Parameter(typeof(ContactDto), "c");
+
+        var property = typeof(ContactDto).GetProperty(propertyName,
+            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)
+          ?? throw new ArgumentException($"Недопустимое имя свойства: {propertyName}");
+
+        var access = Expression.MakeMemberAccess(parameter, property);
+
+        return Expression.Lambda<Func<ContactDto, object>>(Expression.Convert(access, typeof(object)), parameter);
+    }
+
     private Expression<Func<ContactDto, object>> CreateSortExpression(string propertyName)
     {
         try
         {
-            var propertyParameter = Expression.Parameter(typeof(ContactDto), "c");
-
-            var property = typeof(ContactDto)
-                .GetProperty(propertyName,
-                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)
-                ?? throw new ArgumentException($"Передано не допустимое значение: {propertyName}");
-
-            var propertyAccess = Expression.MakeMemberAccess(propertyParameter, property);
-
-            return Expression.Lambda<Func<ContactDto, object>>(Expression.Convert(propertyAccess, typeof(object)), propertyParameter);
+            return GetPropertyExpression(propertyName);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Ошибка! Не удалось сформировать выражение для параметра сортировки. Использовано поле 'LastName' по умолчанию");
 
-            var propertyParameter = Expression.Parameter(typeof(ContactDto), "c");
-            var defaultProperty = typeof(ContactDto).GetProperty("LastName")!;
-            var defaultPropertyAccess = Expression.MakeMemberAccess(propertyParameter, defaultProperty);
-
-            return Expression.Lambda<Func<ContactDto, object>>(Expression.Convert(defaultPropertyAccess, typeof(object)), propertyParameter);
+            return GetPropertyExpression("LastName");
         }
     }
 
@@ -73,24 +73,26 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
                 Phone = c.Phone
             });
 
-        var orderByExpression = CreateSortExpression(OrderByProperty);
+        var orderByExpression = CreateSortExpression(_orderByPropertyName);
 
-        queryableContactsDto = IsDescending ? queryableContactsDto.OrderByDescending(orderByExpression) : queryableContactsDto.OrderBy(orderByExpression);
+        queryableContactsDto = _isDescending ? queryableContactsDto.OrderByDescending(orderByExpression) : queryableContactsDto.OrderBy(orderByExpression);
 
         var totalCount = await _dbSet.CountAsync();
 
         var contactsDtoSorted = await queryableContactsDto
-            .Skip((PageNumber - 1) * PageSize)
-            .Take(PageSize)
+            .Skip((_pageNumber - 1) * _pageSize)
+            .Take(_pageSize)
             .ToListAsync();
 
-        return new PhoneBookPage
+        var page = new PhoneBookPage
         {
             ContactsDto = contactsDtoSorted,
-            TotalCount = totalCount,
-            Number = PageNumber,
-            Size = PageSize
+            TotalCount = totalCount
         };
+
+        SetRepositoryDefaultState();
+
+        return page;
     }
 
     public async Task<bool> DeleteRangeByIdAsync(List<int> rangeId)
@@ -115,5 +117,26 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
     public async Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
     {
         return await _dbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
+    }
+
+    public void SetSortingParameters(string orderBy, bool isDescending)
+    {
+        _orderByPropertyName = orderBy;
+        _isDescending = isDescending;
+    }
+
+    public void SetPagingParameters(int pageNumber, int pageSize)
+    {
+        _pageNumber = pageNumber;
+        _pageSize = pageSize;
+    }
+
+    public void SetRepositoryDefaultState()
+    {
+        _pageNumber = 1;
+        _pageSize = 10;
+
+        _isDescending = false;
+        _orderByPropertyName = "FirstName";
     }
 }

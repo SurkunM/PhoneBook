@@ -32,22 +32,24 @@ public class PhoneBookController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<PhoneBookPage>> GetContacts(
-            [FromQuery] string term = "",
-            [FromQuery] string sortBy = "lastName",
-            [FromQuery] bool isDescending = false,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] bool isDescending,
+            [FromQuery] int pageSize,
+            [FromQuery] int pageNumber,
+            [FromQuery] string sortBy = "",
+            [FromQuery] string term = "")
     {
         if (term is null || sortBy is null)
         {
-            _logger.LogError("Ошибка! При запросе на получение контакта передано значение null");
+            _logger.LogError("Ошибка! При запросе на получение контакта передано значение null. " +
+                "Term: {Term}, SortBy: {SortBy}", term, sortBy);
 
             return BadRequest("Передано значение null.");
         }
 
         if (pageNumber < 1 || pageSize < 1)
         {
-            _logger.LogError("Ошибка! При запросе на получение контакта передано не корректное значение номера или размера страницы.");
+            _logger.LogError("Ошибка! При запросе на получение контакта передано не корректное значение номера или размера страницы. " +
+                "PageNumber: {PageNumber}, PageSize: {PageSize}", pageNumber, pageSize);
 
             return BadRequest("Передано не корректное значение номера или размера страницы.");
         }
@@ -74,22 +76,20 @@ public class PhoneBookController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            _logger.LogError("Ошибка! Переданы не корректные данные для создания контакта.");
+            _logger.LogError("Ошибка! Переданы не корректные данные для создания контакта. {ContactDto}", contactDto);
 
             return UnprocessableEntity(ModelState);
         }
 
         if (await _createContactHandler.CheckIsPhoneExistAsync(contactDto))
         {
-            _logger.LogError("Ошибка! Попытка создать контакт с существующим в бд номером.");
+            _logger.LogError("Ошибка! Попытка создать контакт с существующим в бд номером. {Phone}", contactDto.Phone);
 
             return Conflict("Контакт с таким номером уже существует.");
         }
 
         try
         {
-            _logger.LogInformation("Создание контакта.");//?
-
             await _createContactHandler.HandleAsync(contactDto);
 
             return Ok();
@@ -107,14 +107,14 @@ public class PhoneBookController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            _logger.LogError("Ошибка! Не корректно заполнены поля для изменения контакта.");
+            _logger.LogError("Ошибка! Не корректно заполнены поля для изменения контакта. {ContactDto}", contactDto);
 
             return UnprocessableEntity(ModelState);
         }
 
         if (await _updateContactHandler.CheckIsPhoneExistAsync(contactDto))
         {
-            _logger.LogError("Ошибка! Попытка добавить номер телефона, который уже существует.");
+            _logger.LogError("Ошибка! Попытка добавить номер телефона, который уже существует. {Phone}", contactDto.Phone);
 
             return Conflict("Номер уже существует.");
         }
@@ -138,7 +138,7 @@ public class PhoneBookController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            _logger.LogError("Ошибка! При удалении контакта произошла ошибка.");//Сюда проверку сущ. id
+            _logger.LogError("Ошибка! При удалении контакта произошла ошибка. {id}", id);//TODO: 1.Сюда проверку сущ. id
 
             return BadRequest(ModelState);
         }
@@ -149,15 +149,16 @@ public class PhoneBookController : ControllerBase
 
             if (!isDelete)
             {
-                return BadRequest("Контакт для удаления не найден.");
+                _logger.LogError("Ошибка! Контакт для удаления не найден. {id}", id);
 
+                return BadRequest("Контакт для удаления не найден.");
             }
 
             return Ok();
         }
         catch
         {
-            _logger.LogError("Ошибка! Удаление контакта не выполнено.");
+            _logger.LogError($"Ошибка! Удаление контакта не выполнено.");
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
         }
@@ -168,7 +169,7 @@ public class PhoneBookController : ControllerBase
     {
         if (selectedContactsId is null || selectedContactsId.Count == 0)
         {
-            _logger.LogError("Ошибка! Не переданы данные для удаления.");
+            _logger.LogError("Ошибка! Не переданы данные для удаления.{ContactsId}", selectedContactsId);
 
             return BadRequest("Не переданы данные для удаления.");
         }

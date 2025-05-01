@@ -6,14 +6,6 @@ namespace PhoneBook.Contracts.Repositories;
 
 public interface IContactsRepository : IRepository<Contact>
 {
-    int PageNumber { get; set; }
-
-    int PageSize { get; set; }
-
-    bool IsDescending { get; set; }
-
-    string OrderByProperty { get; set; }
-
     Task<PhoneBookPage> GetContactsAsync(string term);
 
     Task<Contact?> FindContactByIdAsync(int id);
@@ -21,4 +13,10 @@ public interface IContactsRepository : IRepository<Contact>
     Task<bool> DeleteRangeByIdAsync(List<int> rangeId);
 
     Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto);
+
+    void SetSortingParameters(string orderBy, bool isDescending);
+
+    void SetPagingParameters(int pageNumber, int pageSize);
+
+    void SetRepositoryDefaultState();
 }
