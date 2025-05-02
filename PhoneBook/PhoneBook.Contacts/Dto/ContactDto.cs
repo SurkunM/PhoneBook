@@ -6,6 +6,8 @@ public class ContactDto
 {
     public int Id { get; set; }
 
+    public int Index { get; set; }
+
     [Required(ErrorMessage = "Поле фамилия не заполнено")]
     public required string FirstName { get; set; }
 
@@ -14,5 +16,5 @@ public class ContactDto
 
     [Required(ErrorMessage = "Поле телефон не заполнено")]
     [RegularExpression(@"^\+?\d+$", ErrorMessage = "Телефон должен содержать только цифры")]
-    public required string Phone {  get; set; } 
+    public required string Phone { get; set; }
 }

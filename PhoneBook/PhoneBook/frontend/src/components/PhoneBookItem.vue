@@ -4,7 +4,7 @@
             <v-checkbox v-model="isChecked" @change="switchCheckbox"></v-checkbox>
         </td>
 
-        <td>{{ index + 1 }}</td>
+        <td>{{ contact.index }}</td>
 
         <td>{{ contact.lastName }}</td>
 
@@ -25,10 +25,6 @@
         props: {
             contact: {
                 type: Object,
-                required: true
-            },
-            index: {
-                type: Number,
                 required: true
             }
         },

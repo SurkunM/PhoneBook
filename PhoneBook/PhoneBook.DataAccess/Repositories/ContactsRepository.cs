@@ -27,20 +27,20 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
         _logger = logger;
     }
 
-    private static Expression<Func<ContactDto, object>> GetPropertyExpression(string propertyName)
+    private static Expression<Func<Contact, object>> GetPropertyExpression(string propertyName)
     {
-        var parameter = Expression.Parameter(typeof(ContactDto), "c");
+        var parameter = Expression.Parameter(typeof(Contact), "c");
 
-        var property = typeof(ContactDto).GetProperty(propertyName,
+        var property = typeof(Contact).GetProperty(propertyName,
             BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)
           ?? throw new ArgumentException($"Недопустимое имя свойства: {propertyName}");
 
         var access = Expression.MakeMemberAccess(parameter, property);
 
-        return Expression.Lambda<Func<ContactDto, object>>(Expression.Convert(access, typeof(object)), parameter);
+        return Expression.Lambda<Func<Contact, object>>(Expression.Convert(access, typeof(object)), parameter);
     }
 
-    private Expression<Func<ContactDto, object>> CreateSortExpression(string propertyName)
+    private Expression<Func<Contact, object>> CreateSortExpression(string propertyName)
     {
         try
         {
@@ -54,45 +54,57 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
         }
     }
 
+    public void SetRepositoryDefaultState()
+    {
+        _pageNumber = 1;
+        _pageSize = 10;
+
+        _isDescending = false;
+        _orderByPropertyName = "FirstName";
+    }
+
     public async Task<PhoneBookPage> GetContactsAsync(string term)
     {
-        var queryableSbSet = _dbSet.AsNoTracking();
+        var querySbSet = _dbSet.AsNoTracking();
 
         if (!string.IsNullOrEmpty(term))
         {
             term = term.Trim().ToUpper();
-            queryableSbSet = queryableSbSet.Where(c => c.FirstName.ToUpper().Contains(term) || c.LastName.ToUpper().Contains(term) || c.Phone.ToUpper().Contains(term));
+            querySbSet = querySbSet.Where(c => c.FirstName.ToUpper().Contains(term) || c.LastName.ToUpper().Contains(term) || c.Phone.ToUpper().Contains(term));
         }
 
-        var queryableContactsDto = queryableSbSet
-            .Select(c => new ContactDto
+        var orderByExpression = CreateSortExpression(_orderByPropertyName);
+
+        var orderedQuery = _isDescending
+            ? querySbSet.OrderByDescending(orderByExpression)
+            : querySbSet.OrderBy(orderByExpression);
+
+        var contactsDtoSorted = await orderedQuery
+            .Skip((_pageNumber - 1) * _pageSize)
+            .Take(_pageSize)
+            .Select((c) => new ContactDto
             {
                 Id = c.Id,
                 FirstName = c.FirstName,
                 LastName = c.LastName,
                 Phone = c.Phone
-            });
+            })
+            .ToListAsync();
 
-        var orderByExpression = CreateSortExpression(_orderByPropertyName);
-
-        queryableContactsDto = _isDescending ? queryableContactsDto.OrderByDescending(orderByExpression) : queryableContactsDto.OrderBy(orderByExpression);
+        for (int i = 0; i < contactsDtoSorted.Count; i++)
+        {
+            contactsDtoSorted[i].Index = (_pageNumber - 1) * _pageSize + i + 1; ;
+        }
 
         var totalCount = await _dbSet.CountAsync();
 
-        var contactsDtoSorted = await queryableContactsDto
-            .Skip((_pageNumber - 1) * _pageSize)
-            .Take(_pageSize)
-            .ToListAsync();
+        SetRepositoryDefaultState();
 
-        var page = new PhoneBookPage
+        return new PhoneBookPage
         {
             ContactsDto = contactsDtoSorted,
             TotalCount = totalCount
         };
-
-        SetRepositoryDefaultState();
-
-        return page;
     }
 
     public async Task<bool> DeleteRangeByIdAsync(List<int> rangeId)
@@ -129,14 +141,5 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
     {
         _pageNumber = pageNumber;
         _pageSize = pageSize;
-    }
-
-    public void SetRepositoryDefaultState()
-    {
-        _pageNumber = 1;
-        _pageSize = 10;
-
-        _isDescending = false;
-        _orderByPropertyName = "FirstName";
     }
 }

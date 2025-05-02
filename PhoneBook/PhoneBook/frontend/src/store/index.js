@@ -103,6 +103,7 @@ export default createStore({
             }).then(response => {
                 commit("setContacts", response.data.contactsDto);
                 commit("setContactsCount", response.data.totalCount);
+    
                 commit("setSelectedCheckbox");
             }).finally(() => {
                 commit("setIsLoading", false);

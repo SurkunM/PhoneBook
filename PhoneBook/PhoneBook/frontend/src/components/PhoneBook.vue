@@ -25,7 +25,8 @@
                           prepend-inner-icon="mdi-magnify"
                           variant="outlined"
                           hide-details
-                          single-line>
+                          single-line
+                          @keyup.enter="searchContacts">
                 <template v-slot:append-inner>
                     <v-btn icon
                            @click="searchContacts"
@@ -46,7 +47,7 @@
         <v-data-table :headers="headers"
                       :items="contacts"
                       :item-value="id"
-                      hide-default-footer 
+                      hide-default-footer
                       :items-per-page="contactsPerPage">
 
             <template v-slot:[`header.lastName`]="{ column }">
@@ -77,9 +78,8 @@
                 </v-btn>
             </template>
 
-            <template v-slot:item="{item, index}">
+            <template v-slot:item="{ item }">
                 <phone-book-item :contact="item"
-                                 :index="index"
                                  @delete="showSinglDeleteModal"
                                  @edit="showEditingModal">
                 </phone-book-item>
@@ -144,14 +144,14 @@
                 currentPage: 1,
 
                 sortByColumn: "lastName",
-                sortDesc: false,
+                sortDesc: false
             };
         },
 
         created() {
             this.$store.dispatch("loadContacts")
                 .catch(() => {
-                    this.showErrorAlert("Ошибка! Не удалось загрузить контакты.");//TODO: Разобратся с индексами(всегда 1-10).Создать методв в store который индексирует item
+                    this.showErrorAlert("Ошибка! Не удалось загрузить контакты.");
                 });
         },
 
@@ -174,12 +174,12 @@
 
             pagesCount() {
                 return Math.ceil(this.$store.getters.contactsCount / this.contactsPerPage);
-            },
+            }
         },
 
         methods: {
             searchContacts() {
-                this.$store.dispatch("searchContacts", this.term);
+                this.$store.dispatch("searchContacts", this.term);//TODO: надо что бы пересчитвался pagesCount
             },
 
             switchPage(nextPage) {
@@ -220,7 +220,7 @@
 
             deleteAllSelected() {
                 this.$store.dispatch("deleteAllSelectedContacts")
-                    .then(() => {                        
+                    .then(() => {
                         this.showSuccessAlert("Выбранные контакты успешно удалены.");
                     })
                     .catch(() => {
