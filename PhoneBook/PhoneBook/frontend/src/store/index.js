@@ -101,9 +101,9 @@ export default createStore({
                     pageSize: state.pageSize
                 }
             }).then(response => {
-                commit("setContacts", response.data.contactsDto);
+                commit("setContacts", response.data.contacts);
                 commit("setContactsCount", response.data.totalCount);
-    
+
                 commit("setSelectedCheckbox");
             }).finally(() => {
                 commit("setIsLoading", false);

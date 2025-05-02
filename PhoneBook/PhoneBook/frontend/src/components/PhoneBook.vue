@@ -179,7 +179,7 @@
 
         methods: {
             searchContacts() {
-                this.$store.dispatch("searchContacts", this.term);//TODO: надо что бы пересчитвался pagesCount
+                this.$store.dispatch("searchContacts", this.term);
             },
 
             switchPage(nextPage) {

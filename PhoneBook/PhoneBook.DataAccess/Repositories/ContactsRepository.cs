@@ -98,11 +98,16 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
         var totalCount = await _dbSet.CountAsync();
 
+        if (!string.IsNullOrEmpty(term))
+        {
+            totalCount = contactsDtoSorted.Count;
+        }
+
         SetRepositoryDefaultState();
 
         return new PhoneBookPage
         {
-            ContactsDto = contactsDtoSorted,
+            Contacts = contactsDtoSorted,
             TotalCount = totalCount
         };
     }
