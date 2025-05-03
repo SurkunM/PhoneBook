@@ -6,6 +6,12 @@
         </h2>
     </v-card-title>
 
+    <v-progress-linear v-if="isLoading"
+                       indeterminate
+                       color="primary"
+                       height="4">
+    </v-progress-linear>
+
     <v-alert type="success" variant="outlined" v-show="isShowSuccessAlert">
         <template v-slot:text>
             <span v-text="alertText"></span>
@@ -44,6 +50,15 @@
             </v-text-field>
         </template>
 
+        <div class="d-flex justify-end">
+            <v-btn @click="downloadExcel"
+                   color="primary"
+                   size="small"
+                   class="me-4">
+                <v-icon>mdi-format-vertical-align-bottom</v-icon>Скачать Excel
+            </v-btn>
+        </div>
+
         <v-data-table :headers="headers"
                       :items="contacts"
                       :item-value="id"
@@ -71,11 +86,13 @@
             </template>
 
             <template v-slot:[`header.actions`]>
-                <v-btn color="error"
-                       text="Удалить все"
-                       @click="showAllDeleteModal"
-                       v-show="enabledButton">
-                </v-btn>
+                <div class="d-flex justify-center">
+                    <v-btn color="error"
+                           text="Удалить все"
+                           @click="showAllDeleteModal"
+                           v-show="enabledButton">
+                    </v-btn>
+                </div>
             </template>
 
             <template v-slot:item="{ item }">
@@ -174,6 +191,10 @@
 
             pagesCount() {
                 return Math.ceil(this.$store.getters.contactsCount / this.contactsPerPage);
+            },
+
+            isLoading() {
+                return this.$store.getters.isLoading;
             }
         },
 
@@ -185,6 +206,10 @@
             cancelSearch() {
                 this.term = "";
                 this.$store.dispatch("searchContacts", this.term);
+            },
+
+            downloadExcel() {
+
             },
 
             showAllDeleteModal() {

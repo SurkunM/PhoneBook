@@ -219,6 +219,10 @@ export default createStore({
             return state.isAllSelect || (state.selectedContactsId.length === state.contacts.length && state.selectedContactsId.length > 0);
         },
 
+        isLoading(state) {
+            return state.isLoading;
+        },
+
         pageSize(state) {
             return state.pageSize;
         }

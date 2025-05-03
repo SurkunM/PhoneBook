@@ -13,8 +13,10 @@
         <td>{{ contact.phone }}</td>
 
         <td>
-            <v-btn small color="info" @click="$emit('edit', contact)" class="me-2">Редактировать</v-btn>
-            <v-btn small color="error" @click="$emit('delete', contact)">Удалить</v-btn>
+            <div class="d-flex justify-center">
+                <v-btn small color="info" @click="$emit('edit', contact)" class="me-2">Редактировать</v-btn>
+                <v-btn small color="error" @click="$emit('delete', contact)">Удалить</v-btn>
+            </div>
         </td>
     </tr>
 </template>
