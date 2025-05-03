@@ -14,14 +14,6 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 {
     private readonly ILogger<ContactsRepository> _logger;
 
-    private int _pageNumber;
-
-    private int _pageSize;
-
-    private bool _isDescending;
-
-    private string _orderByPropertyName = "";
-
     public ContactsRepository(PhoneBookDbContext dbContext, ILogger<ContactsRepository> logger) : base(dbContext)
     {
         _logger = logger;
@@ -54,34 +46,27 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
         }
     }
 
-    public void SetRepositoryDefaultState()
-    {
-        _pageNumber = 1;
-        _pageSize = 10;
-
-        _isDescending = false;
-        _orderByPropertyName = "FirstName";
-    }
-
-    public async Task<PhoneBookPage> GetContactsAsync(string term)
+    public async Task<PhoneBookPage> GetContactsAsync(GetContactsQueryParameters queryParameters)
     {
         var querySbSet = _dbSet.AsNoTracking();
 
-        if (!string.IsNullOrEmpty(term))
+        if (!string.IsNullOrEmpty(queryParameters.Term))
         {
-            term = term.Trim().ToUpper();
-            querySbSet = querySbSet.Where(c => c.FirstName.ToUpper().Contains(term) || c.LastName.ToUpper().Contains(term) || c.Phone.ToUpper().Contains(term));
+            queryParameters.Term = queryParameters.Term.Trim().ToUpper();
+            querySbSet = querySbSet.Where(c => c.FirstName.ToUpper().Contains(queryParameters.Term)
+                || c.LastName.ToUpper().Contains(queryParameters.Term)
+                || c.Phone.ToUpper().Contains(queryParameters.Term));
         }
 
-        var orderByExpression = CreateSortExpression(_orderByPropertyName);
+        var orderByExpression = CreateSortExpression(queryParameters.SortBy);
 
-        var orderedQuery = _isDescending
+        var orderedQuery = queryParameters.IsDescending
             ? querySbSet.OrderByDescending(orderByExpression)
             : querySbSet.OrderBy(orderByExpression);
 
         var contactsDtoSorted = await orderedQuery
-            .Skip((_pageNumber - 1) * _pageSize)
-            .Take(_pageSize)
+            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+            .Take(queryParameters.PageSize)
             .Select((c) => new ContactDto
             {
                 Id = c.Id,
@@ -93,23 +78,34 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
         for (int i = 0; i < contactsDtoSorted.Count; i++)
         {
-            contactsDtoSorted[i].Index = (_pageNumber - 1) * _pageSize + i + 1; ;
+            contactsDtoSorted[i].Index = (queryParameters.PageNumber - 1) * queryParameters.PageSize + i + 1; ;
         }
 
         var totalCount = await _dbSet.CountAsync();
 
-        if (!string.IsNullOrEmpty(term))
+        if (!string.IsNullOrEmpty(queryParameters.Term))
         {
             totalCount = contactsDtoSorted.Count;
         }
-
-        SetRepositoryDefaultState();
 
         return new PhoneBookPage
         {
             Contacts = contactsDtoSorted,
             TotalCount = totalCount
         };
+    }
+
+    public async Task<List<ContactDto>> GetContactsAsync()
+    {
+        return await _dbSet.AsNoTracking()
+            .Select((c) => new ContactDto
+            {
+                Id = c.Id,
+                FirstName = c.FirstName,
+                LastName = c.LastName,
+                Phone = c.Phone
+            })
+            .ToListAsync();
     }
 
     public async Task<bool> DeleteRangeByIdAsync(List<int> rangeId)
@@ -134,17 +130,5 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
     public async Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
     {
         return await _dbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
-    }
-
-    public void SetSortingParameters(string orderBy, bool isDescending)
-    {
-        _orderByPropertyName = orderBy;
-        _isDescending = isDescending;
-    }
-
-    public void SetPagingParameters(int pageNumber, int pageSize)
-    {
-        _pageNumber = pageNumber;
-        _pageSize = pageSize;
     }
 }
