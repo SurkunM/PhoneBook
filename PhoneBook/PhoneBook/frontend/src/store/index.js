@@ -185,6 +185,8 @@ export default createStore({
 
         searchContacts({ commit, dispatch }, term) {
             commit("setTerm", term);
+            commit("setPageNumber", 1);
+
             commit("switchAllCheckbox", true);
 
             dispatch("loadContacts");

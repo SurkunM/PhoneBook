@@ -182,10 +182,6 @@
                 this.$store.dispatch("searchContacts", this.term);
             },
 
-            switchPage(nextPage) {
-                this.$store.dispatch("navigateToPage", nextPage);
-            },
-
             cancelSearch() {
                 this.term = "";
                 this.$store.dispatch("searchContacts", this.term);
@@ -253,6 +249,24 @@
                 this.$store.dispatch("switchAllSelect");
             },
 
+            sortBy(column) {
+                if (this.sortByColumn === column.value) {
+                    this.sortDesc = !this.sortDesc;
+                } else {
+                    this.sortDesc = false;
+                    this.sortByColumn = column.value;
+                }
+
+                this.$store.dispatch("sortByColumn", {
+                    sortBy: this.sortByColumn,
+                    isDesc: this.sortDesc
+                });
+            },
+
+            switchPage(nextPage) {
+                this.$store.dispatch("navigateToPage", nextPage);
+            },
+
             showSuccessAlert(text) {
                 this.alertText = text;
                 this.isShowSuccessAlert = true;
@@ -271,20 +285,6 @@
                     this.alertText = "";
                     this.isShowErrorAlert = false;
                 }, 2000);
-            },
-
-            sortBy(column) {
-                if (this.sortByColumn === column.value) {
-                    this.sortDesc = !this.sortDesc;
-                } else {
-                    this.sortDesc = false;
-                    this.sortByColumn = column.value;
-                }
-
-                this.$store.dispatch("sortByColumn", {
-                    sortBy: this.sortByColumn,
-                    isDesc: this.sortDesc
-                });
             }
         }
     };

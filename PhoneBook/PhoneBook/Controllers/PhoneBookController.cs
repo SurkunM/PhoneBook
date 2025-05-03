@@ -74,6 +74,13 @@ public class PhoneBookController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateContact(ContactDto contactDto)
     {
+        if (contactDto is null)
+        {
+            _logger.LogError("Ошибка! Объект ContactDto пуст.");
+
+            return BadRequest("Объект \"Новый контакт\" пуст.");
+        }
+
         if (!ModelState.IsValid)
         {
             _logger.LogError("Ошибка! Переданы не корректные данные для создания контакта. {ContactDto}", contactDto);
@@ -92,11 +99,11 @@ public class PhoneBookController : ControllerBase
         {
             await _createContactHandler.HandleAsync(contactDto);
 
-            return Ok();
+            return NoContent();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _logger.LogError("Ошибка! Контакт не создан.");
+            _logger.LogError(ex, "Ошибка! Контакт не создан.");
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
         }
@@ -105,6 +112,13 @@ public class PhoneBookController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> UpdateContact(ContactDto contactDto)
     {
+        if (contactDto is null)
+        {
+            _logger.LogError("Ошибка! Объект ContactDto пуст.");
+
+            return BadRequest("Объект ContactDto пуст.");
+        }
+
         if (!ModelState.IsValid)
         {
             _logger.LogError("Ошибка! Не корректно заполнены поля для изменения контакта. {ContactDto}", contactDto);
@@ -123,11 +137,11 @@ public class PhoneBookController : ControllerBase
         {
             await _updateContactHandler.HandleAsync(contactDto);
 
-            return Ok();
+            return NoContent();
         }
-        catch
+        catch (Exception ex)
         {
-            _logger.LogError("Ошибка! Контакт не изменен.");
+            _logger.LogError(ex, "Ошибка! Контакт не изменен.");
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
         }
@@ -136,29 +150,29 @@ public class PhoneBookController : ControllerBase
     [HttpDelete]
     public async Task<IActionResult> DeleteContact([FromBody] int id)
     {
-        if (!ModelState.IsValid)
+        if (id < 0)
         {
-            _logger.LogError("Ошибка! При удалении контакта произошла ошибка. {id}", id);//TODO: 1.Сюда проверку сущ. id
+            _logger.LogError("Передано значение id меньше нуля. id={id}", id);
 
-            return BadRequest(ModelState);
+            BadRequest("Передано не корректное значение.");
         }
 
         try
         {
-            var isDelete = await _deleteContactHandler.DeleteSingleContactHandleAsync(id);//сделать отдельно 
+            var isDelete = await _deleteContactHandler.DeleteSingleContactHandleAsync(id);
 
             if (!isDelete)
             {
-                _logger.LogError("Ошибка! Контакт для удаления не найден. {id}", id);
+                _logger.LogError("Ошибка! Контакт для удаления не найден. id={id}", id);
 
                 return BadRequest("Контакт для удаления не найден.");
             }
 
-            return Ok();
+            return NoContent();
         }
-        catch
+        catch (Exception ex)
         {
-            _logger.LogError($"Ошибка! Удаление контакта не выполнено.");
+            _logger.LogError(ex, "Ошибка! Удаление контакта не выполнено. id={id}", id);
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
         }
@@ -178,11 +192,11 @@ public class PhoneBookController : ControllerBase
         {
             await _deleteContactHandler.DeleteAllSelectedContactHandleAsync(selectedContactsId);
 
-            return Ok();
+            return NoContent();
         }
-        catch
+        catch (Exception ex)
         {
-            _logger.LogError("Ошибка! Удаление выбранных контактов не выполнено.");
+            _logger.LogError(ex, "Ошибка! Удаление выбранных контактов не выполнено.");
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
         }

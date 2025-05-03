@@ -1,5 +1,4 @@
-﻿using PhoneBook.Contracts.Dto;
-using PhoneBook.Contracts.Repositories;
+﻿using PhoneBook.Contracts.Repositories;
 using PhoneBook.Contracts.Responses;
 
 namespace PhoneBook.BusinessLogic.Handlers;
