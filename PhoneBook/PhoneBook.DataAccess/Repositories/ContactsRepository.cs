@@ -95,9 +95,9 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
         };
     }
 
-    public async Task<List<ContactDto>> GetContactsAsync()
+    public Task<List<ContactDto>> GetContactsAsync()
     {
-        return await _dbSet.AsNoTracking()
+        return _dbSet.AsNoTracking()
             .Select((c) => new ContactDto
             {
                 Id = c.Id,
@@ -122,13 +122,13 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
         return true;
     }
 
-    public async Task<Contact?> FindContactByIdAsync(int id)
+    public Task<Contact?> FindContactByIdAsync(int id)
     {
-        return await _dbSet.FirstOrDefaultAsync(c => c.Id == id);
+        return _dbSet.FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public async Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
+    public Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
     {
-        return await _dbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
+        return _dbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
     }
 }

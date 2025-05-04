@@ -13,7 +13,7 @@ export default createStore({
         selectedContactsId: [],
         isAllSelect: false,
 
-        columnSortBy: "",
+        sortByColumn: "",
         isDescending: false,
 
         isLoading: false
@@ -35,7 +35,7 @@ export default createStore({
         setSortingParameters(state, payload) {
             const { sortBy, isDesc } = payload;
 
-            state.columnSortBy = sortBy;
+            state.sortByColumn = sortBy;
             state.isDescending = isDesc;
         },
 
@@ -95,7 +95,7 @@ export default createStore({
             return axios.get("/api/PhoneBook/GetContacts", {
                 params: {
                     term: state.term,
-                    sortBy: state.columnSortBy,
+                    sortBy: state.sortByColumn,
                     isDescending: state.isDescending,
                     pageNumber: state.pageNumber,
                     pageSize: state.pageSize
@@ -190,6 +190,30 @@ export default createStore({
             commit("switchAllCheckbox", true);
 
             dispatch("loadContacts");
+        },
+
+        exportToExcel({ commit }) {
+            commit("setIsLoading", true);
+
+            return axios.get("/api/PhoneBook/ExportToExcel", { responseType: 'blob' })
+                .then(response => {
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                    const link = document.createElement('a');
+
+                    link.href = url;
+                    link.setAttribute('download', 'contacts.xlsx');
+                    document.body.appendChild(link);
+
+                    link.click();
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                    }, 0);
+                })
+                .finally(() => {
+                    commit("setIsLoading", false);
+                });
         },
 
         navigateToPage({ commit, dispatch }, nextPage) {

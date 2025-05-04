@@ -42,8 +42,8 @@ public class BaseEfRepository<T> : IRepository<T> where T : class
         await SaveAsync();
     }
 
-    public async Task SaveAsync()
+    public Task SaveAsync()
     {
-        await _dbContext.SaveChangesAsync();
+        return _dbContext.SaveChangesAsync();
     }
 }

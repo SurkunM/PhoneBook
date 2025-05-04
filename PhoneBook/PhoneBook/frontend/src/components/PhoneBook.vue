@@ -51,7 +51,7 @@
         </template>
 
         <div class="d-flex justify-end">
-            <v-btn @click="downloadExcel"
+            <v-btn @click="exportToExcel"
                    color="primary"
                    size="small"
                    class="me-4">
@@ -208,8 +208,14 @@
                 this.$store.dispatch("searchContacts", this.term);
             },
 
-            downloadExcel() {
-
+            exportToExcel() {
+                this.$store.dispatch("exportToExcel")
+                    .then(() => {
+                        this.showSuccessAlert("Контакт успешно выгружены в Excel.");
+                    })
+                    .catch(() => {
+                        this.showErrorAlert("Ошибка при выгрузке в Excel");                        
+                    });
             },
 
             showAllDeleteModal() {
