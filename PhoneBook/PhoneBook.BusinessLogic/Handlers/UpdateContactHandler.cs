@@ -12,7 +12,7 @@ public class UpdateContactHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public async Task<bool> HandleAsync(ContactDto contactDto)
+    public async Task<bool> HandlerAsync(ContactDto contactDto)
     {
         await _contactsRepository.UpdateAsync(contactDto.ToModel());
 

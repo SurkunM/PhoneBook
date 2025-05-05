@@ -14,12 +14,12 @@ public class GetContactsHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public async Task<PhoneBookPage> HandleAsync(GetContactsQueryParameters queryParameters)
+    public async Task<PhoneBookPage> HandlerAsync(GetContactsQueryParameters queryParameters)
     {
         return await _contactsRepository.GetContactsAsync(queryParameters);
     }
 
-    public async Task<List<ContactDto>> AllContactsHandleAsync()
+    public async Task<List<ContactDto>> AllContactsHandlerAsync()
     {
         return await _contactsRepository.GetContactsAsync();
     }

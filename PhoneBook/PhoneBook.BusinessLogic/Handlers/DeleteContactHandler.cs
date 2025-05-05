@@ -11,7 +11,7 @@ public class DeleteContactHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public async Task<bool> DeleteSingleContactHandleAsync(int id)
+    public async Task<bool> DeleteSingleContactHandlerAsync(int id)
     {
         var contact = await _contactsRepository.FindContactByIdAsync(id);
 
@@ -25,7 +25,7 @@ public class DeleteContactHandler
         return true;
     }
 
-    public async Task<bool> DeleteAllSelectedContactHandleAsync(List<int> rangeId)
+    public async Task<bool> DeleteAllSelectedContactHandlerAsync(List<int> rangeId)
     {
         await _contactsRepository.DeleteRangeByIdAsync(rangeId);
 

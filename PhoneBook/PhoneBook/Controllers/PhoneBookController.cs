@@ -43,7 +43,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            var contacts = await _getContactsHandler.HandleAsync(queryParameters);
+            var contacts = await _getContactsHandler.HandlerAsync(queryParameters);
 
             return Ok(contacts);
         }
@@ -81,7 +81,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            await _createContactHandler.HandleAsync(contactDto);
+            await _createContactHandler.HandlerAsync(contactDto);
 
             return NoContent();
         }
@@ -119,7 +119,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            await _updateContactHandler.HandleAsync(contactDto);
+            await _updateContactHandler.HandlerAsync(contactDto);
 
             return NoContent();
         }
@@ -143,7 +143,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            var isDelete = await _deleteContactHandler.DeleteSingleContactHandleAsync(id);
+            var isDelete = await _deleteContactHandler.DeleteSingleContactHandlerAsync(id);
 
             if (!isDelete)
             {
@@ -174,7 +174,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            await _deleteContactHandler.DeleteAllSelectedContactHandleAsync(selectedContactsId);
+            await _deleteContactHandler.DeleteAllSelectedContactHandlerAsync(selectedContactsId);
 
             return NoContent();
         }
@@ -191,7 +191,7 @@ public class PhoneBookController : ControllerBase
     {
         try
         {
-            var contactsDto = await _getContactsHandler.AllContactsHandleAsync();
+            var contactsDto = await _getContactsHandler.AllContactsHandlerAsync();
 
             if (contactsDto is null || contactsDto.Count == 0)
             {
