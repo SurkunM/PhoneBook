@@ -108,7 +108,7 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
             .ToListAsync();
     }
 
-    public async Task<bool> DeleteRangeByIdAsync(List<int> rangeId)
+    public async Task DeleteRangeByIdAsync(List<int> rangeId)
     {
         var contacts = await _dbSet
             .AsNoTracking()
@@ -118,8 +118,6 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
         _dbSet.RemoveRange(contacts);
 
         await SaveAsync();
-
-        return true;
     }
 
     public Task<Contact?> FindContactByIdAsync(int id)

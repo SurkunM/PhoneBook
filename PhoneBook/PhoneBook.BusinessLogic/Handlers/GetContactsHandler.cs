@@ -1,7 +1,6 @@
 ﻿using PhoneBook.Contracts.Dto;
 using PhoneBook.Contracts.Repositories;
 using PhoneBook.Contracts.Responses;
-using System.Threading.Tasks;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
@@ -14,13 +13,8 @@ public class GetContactsHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public async Task<PhoneBookPage> HandlerAsync(GetContactsQueryParameters queryParameters)
+    public Task<PhoneBookPage> HandlerAsync(GetContactsQueryParameters queryParameters)
     {
-        return await _contactsRepository.GetContactsAsync(queryParameters);
-    }
-
-    public async Task<List<ContactDto>> AllContactsHandlerAsync()
-    {
-        return await _contactsRepository.GetContactsAsync();
+        return _contactsRepository.GetContactsAsync(queryParameters);
     }
 }

@@ -1,5 +1,4 @@
-﻿using ClosedXML.Excel;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PhoneBook.BusinessLogic.Handlers;
 using PhoneBook.Contracts.Dto;
 using PhoneBook.Contracts.Responses;
@@ -18,16 +17,20 @@ public class PhoneBookController : ControllerBase
 
     private readonly DeleteContactHandler _deleteContactHandler;
 
+    private readonly ExportToExcelHandler _exportToExcelHandler;
+
     private readonly ILogger<PhoneBookController> _logger;
 
     public PhoneBookController(
         GetContactsHandler getContactsHandler, CreateContactHandler createContactHandler,
-        UpdateContactHandler updateContactHandler, DeleteContactHandler deleteContactHandler, ILogger<PhoneBookController> logger)
+        UpdateContactHandler updateContactHandler, DeleteContactHandler deleteContactHandler,
+        ExportToExcelHandler exportToExcelHandler, ILogger<PhoneBookController> logger)
     {
         _createContactHandler = createContactHandler ?? throw new ArgumentNullException(nameof(createContactHandler));
         _getContactsHandler = getContactsHandler ?? throw new ArgumentNullException(nameof(getContactsHandler));
         _updateContactHandler = updateContactHandler ?? throw new ArgumentNullException(nameof(updateContactHandler));
         _deleteContactHandler = deleteContactHandler ?? throw new ArgumentNullException(nameof(deleteContactHandler));
+        _exportToExcelHandler = exportToExcelHandler ?? throw new ArgumentNullException(nameof(exportToExcelHandler));
         _logger = logger;
     }
 
@@ -143,14 +146,16 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            var isDelete = await _deleteContactHandler.DeleteSingleContactHandlerAsync(id);
+            var contact = await _deleteContactHandler.FindContactByIdAsync(id);
 
-            if (!isDelete)
+            if (contact is null)
             {
                 _logger.LogError("Ошибка! Контакт для удаления не найден. id={id}", id);
 
                 return BadRequest("Контакт для удаления не найден.");
             }
+
+            await _deleteContactHandler.DeleteSingleContactHandlerAsync(contact);
 
             return NoContent();
         }
@@ -187,58 +192,17 @@ public class PhoneBookController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> ExportToExcel()//TODO: Нужно сделать для этого отдельный класс и хандлер
+    public async Task<IActionResult> ExportToExcel()
     {
         try
         {
-            var contactsDto = await _getContactsHandler.AllContactsHandlerAsync();
+            var memoryStream = await _exportToExcelHandler.HandlerAsync();
 
-            if (contactsDto is null || contactsDto.Count == 0)
-            {
-                return BadRequest("Нет данных для экспорта");
-            }
-
-            using var workbook = new XLWorkbook();
-            var worksheet = workbook.AddWorksheet();
-
-            worksheet.Range("A1:С1").Merge();
-            worksheet.Cell("A1").SetValue("Контакты");
-            worksheet.Cell("A1").Style.Font.FontSize = 12;
-            worksheet.Cell("A1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-
-            var contacts = contactsDto
-                 .Select(c => new
-                 {
-                     c.FirstName,
-                     c.LastName,
-                     c.Phone
-                 })
-                 .ToList();
-
-            var table = worksheet.Cell("A2").InsertTable(contacts, "Контакты");
-
-            table.Field("LastName").Name = "Фамилия";
-            table.Field("FirstName").Name = "Имя";
-            table.Field("Phone").Name = "Телефон";
-
-            table.Rows().Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            table.ShowAutoFilter = false;
-            table.Theme = XLTableTheme.TableStyleMedium5;
-
-            worksheet.Columns().AdjustToContents();
-
-            var memoryStream = new MemoryStream();
-            workbook.SaveAs(memoryStream);
-
-            memoryStream.Position = 0;
-
-            var excel = File(
+            return File(
                 fileStream: memoryStream,
                 contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 fileDownloadName: $"contacts_{DateTime.Now:yyyyMMddHHmmss}.xlsx"
             );
-
-            return excel;
         }
         catch (Exception ex)
         {

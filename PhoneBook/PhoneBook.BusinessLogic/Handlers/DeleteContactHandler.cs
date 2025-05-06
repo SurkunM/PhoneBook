@@ -1,4 +1,5 @@
 ﻿using PhoneBook.Contracts.Repositories;
+using PhoneBook.Model;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
@@ -11,24 +12,18 @@ public class DeleteContactHandler
         _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
     }
 
-    public async Task<bool> DeleteSingleContactHandlerAsync(int id)
+    public Task<Contact?> FindContactByIdAsync(int id)
     {
-        var contact = await _contactsRepository.FindContactByIdAsync(id);
-
-        if (contact is null)
-        {
-            return false;
-        }
-
-        await _contactsRepository.DeleteAsync(contact);
-
-        return true;
+        return _contactsRepository.FindContactByIdAsync(id);
     }
 
-    public async Task<bool> DeleteAllSelectedContactHandlerAsync(List<int> rangeId)
+    public Task DeleteSingleContactHandlerAsync(Contact contact)
     {
-        await _contactsRepository.DeleteRangeByIdAsync(rangeId);
+        return _contactsRepository.DeleteAsync(contact);
+    }
 
-        return true;
+    public Task DeleteAllSelectedContactHandlerAsync(List<int> rangeId)
+    {
+        return _contactsRepository.DeleteRangeByIdAsync(rangeId);
     }
 }
