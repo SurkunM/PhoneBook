@@ -17,20 +17,20 @@ public class PhoneBookController : ControllerBase
 
     private readonly DeleteContactHandler _deleteContactHandler;
 
-    private readonly ExportToExcelHandler _exportToExcelHandler;
+    private readonly GenerateContactsExcelHandler _generateContactsExcelHandler;
 
     private readonly ILogger<PhoneBookController> _logger;
 
     public PhoneBookController(
         GetContactsHandler getContactsHandler, CreateContactHandler createContactHandler,
         UpdateContactHandler updateContactHandler, DeleteContactHandler deleteContactHandler,
-        ExportToExcelHandler exportToExcelHandler, ILogger<PhoneBookController> logger)
+        GenerateContactsExcelHandler generateContactsExcelHandler, ILogger<PhoneBookController> logger)
     {
         _createContactHandler = createContactHandler ?? throw new ArgumentNullException(nameof(createContactHandler));
         _getContactsHandler = getContactsHandler ?? throw new ArgumentNullException(nameof(getContactsHandler));
         _updateContactHandler = updateContactHandler ?? throw new ArgumentNullException(nameof(updateContactHandler));
         _deleteContactHandler = deleteContactHandler ?? throw new ArgumentNullException(nameof(deleteContactHandler));
-        _exportToExcelHandler = exportToExcelHandler ?? throw new ArgumentNullException(nameof(exportToExcelHandler));
+        _generateContactsExcelHandler = generateContactsExcelHandler ?? throw new ArgumentNullException(nameof(generateContactsExcelHandler));
         _logger = logger;
     }
 
@@ -196,13 +196,9 @@ public class PhoneBookController : ControllerBase
     {
         try
         {
-            var memoryStream = await _exportToExcelHandler.HandlerAsync();
+            var memoryStream = await _generateContactsExcelHandler.ExcelGenerateHandlerAsync();
 
-            return File(
-                fileStream: memoryStream,
-                contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                fileDownloadName: $"contacts_{DateTime.Now:yyyyMMddHHmmss}.xlsx"
-            );
+            return _generateContactsExcelHandler.CreateExcelFileResult(memoryStream, $"contacts_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
         }
         catch (Exception ex)
         {

@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using PhoneBook.BusinessLogic.Handlers;
+using PhoneBook.BusinessLogic.Services;
 using PhoneBook.Contracts.Repositories;
 using PhoneBook.DataAccess;
 using PhoneBook.DataAccess.Repositories;
+using PhoneBook.Jobs;
 
 namespace PhoneBook;
 
@@ -28,6 +30,11 @@ public class PhoneBookProgram
         builder.Services.AddTransient<CreateContactHandler>();
         builder.Services.AddTransient<UpdateContactHandler>();
         builder.Services.AddTransient<DeleteContactHandler>();
+
+        builder.Services.AddTransient<GenerateContactsExcelHandler>();
+        builder.Services.AddTransient<ExcelGenerateService>();
+
+        builder.Services.AddHostedService<ExportContactsToExcelJob>();
 
         var app = builder.Build();
 
