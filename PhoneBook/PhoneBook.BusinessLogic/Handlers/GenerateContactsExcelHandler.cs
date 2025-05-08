@@ -24,9 +24,9 @@ public class GenerateContactsExcelHandler
         return _excelService.GenerateContactsExcel(contacts);
     }
 
-    public Task SaveContactsExcel(MemoryStream excelMemoryStream, IConfiguration fileName)
+    public Task SaveContactsToExcelFileAsync(MemoryStream excelMemoryStream, IConfiguration fileName)
     {
-        return _excelService.SaveContactsExcel(excelMemoryStream, fileName);
+        return _excelService.SaveContactsToExcelFileAsync(excelMemoryStream, fileName);
     }
 
     public FileStreamResult CreateExcelFileResult(MemoryStream stream, string fileName)

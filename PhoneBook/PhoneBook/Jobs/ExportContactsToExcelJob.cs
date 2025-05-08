@@ -47,6 +47,6 @@ public class ExportContactsToExcelJob : BackgroundService
 
         var excelMemoryStream = await handler.ExcelGenerateHandlerAsync();
 
-        await handler.SaveContactsExcel(excelMemoryStream, _configuration);
+        await handler.SaveContactsToExcelFileAsync(excelMemoryStream, _configuration);
     }
 }

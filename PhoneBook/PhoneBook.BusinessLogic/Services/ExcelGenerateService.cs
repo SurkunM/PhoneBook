@@ -46,8 +46,11 @@ public class ExcelGenerateService
         return excelMemoryStream;
     }
 
-    public async Task SaveContactsExcel(MemoryStream excelMemoryStream, IConfiguration configuration)
+    public async Task SaveContactsToExcelFileAsync(MemoryStream excelMemoryStream, IConfiguration configuration)
     {
+        ArgumentNullException.ThrowIfNull(excelMemoryStream);
+        ArgumentNullException.ThrowIfNull(configuration);
+
         var path = Path.Combine(configuration["ExcelExport:Path"] ?? throw new InvalidOperationException("Указан некорректный путь для сохранения файла"),
             $"contacts_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
 
@@ -63,6 +66,8 @@ public class ExcelGenerateService
         {
             throw new ArgumentException($"Переданный поток пусть. {stream}");
         }
+
+        fileName ??= $"contacts_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
 
         stream.Position = 0;
 
