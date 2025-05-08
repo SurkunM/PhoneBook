@@ -10,7 +10,7 @@
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="error" text @click="$emit('delete')">Удалить</v-btn>
-                <v-btn color="secondary" text @click="hide">Отмена</v-btn>
+                <v-btn color="info" text @click="hide">Отмена</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>

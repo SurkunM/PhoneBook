@@ -35,7 +35,7 @@
 
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue lighten-1" type="submit">Сохранить</v-btn>
+                    <v-btn color="info" type="submit">Сохранить</v-btn>
                     <v-btn color="error" @click="hide">Отменить</v-btn>
                 </v-card-actions>
             </v-form>

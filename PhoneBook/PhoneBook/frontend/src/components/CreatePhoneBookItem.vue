@@ -27,12 +27,12 @@
                       :error-messages="errors.phone"
                       @change="checkPhoneFieldComplete"
                       autocomplete="off"
-                      label="Телефон">
+                      label="Телефон"
+                      class="mb-3">
         </v-text-field>
 
-        <v-btn class="me-4" type="submit">Сохранить</v-btn>
-
-        <v-btn @click="resetForm">Очистить</v-btn>
+        <v-btn class="me-4" color="info" type="submit">Сохранить</v-btn>
+        <v-btn color="secondary" @click="resetForm">Очистить</v-btn>
     </form>
 </template>
 

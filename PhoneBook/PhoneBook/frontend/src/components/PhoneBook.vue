@@ -51,7 +51,7 @@
         </template>
 
         <div class="d-flex justify-end">
-            <v-btn @click="exportToExcel"
+            <v-btn @click="showExportToExcelModal"
                    color="primary"
                    size="small"
                    class="me-4">
@@ -121,6 +121,10 @@
         <template>
             <all-delete-modal ref="confirmAllDeleteModal" @delete="deleteAllSelected"></all-delete-modal>
         </template>
+
+        <template>
+            <export-to-excel-modal ref="confirmExportToExcelModal" @export="exportToExcel"></export-to-excel-modal>
+        </template>
     </v-card>
 </template>
 
@@ -130,19 +134,24 @@
     import SingleDeleteModal from "./SingleDeleteModal.vue";
     import AllDeleteModal from "./AllDeleteModal.vue";
     import EditingModal from "./EditingModal.vue";
+    import ExportToExcelModal from "./ExprotToExcelModal.vue";
 
     export default {
         components: {
             PhoneBookItem,
 
-            EditingModal,
+            AllDeleteModal,
             SingleDeleteModal,
-            AllDeleteModal
+
+            EditingModal,
+            ExportToExcelModal
         },
 
         data() {
             return {
                 selectedContact: null,
+
+                isSearchMode: false,
                 term: "",
 
                 isShowSuccessAlert: false,
@@ -200,12 +209,22 @@
 
         methods: {
             searchContacts() {
+                if (this.term.length === 0) {
+                    return;
+                }
+
                 this.$store.dispatch("searchContacts", this.term);
+                this.isSearchMode = true;
             },
 
             cancelSearch() {
+                if (!this.isSearchMode) {
+                    return;
+                }
+
                 this.term = "";
                 this.$store.dispatch("searchContacts", this.term);
+                this.isSearchMode = false;
             },
 
             exportToExcel() {
@@ -214,7 +233,10 @@
                         this.showSuccessAlert("Контакт успешно выгружены в Excel.");
                     })
                     .catch(() => {
-                        this.showErrorAlert("Ошибка при выгрузке в Excel");                        
+                        this.showErrorAlert("Ошибка! Не удалось выгрузить контакты в excel файл.");
+                    })
+                    .finally(() => {
+                        this.$refs.confirmExportToExcelModal.hide();
                     });
             },
 
@@ -230,6 +252,10 @@
             showEditingModal(contact) {
                 this.selectedContact = contact;
                 this.$refs.contactEditingModal.show(this.selectedContact);
+            },
+
+            showExportToExcelModal() {
+                this.$refs.confirmExportToExcelModal.show();
             },
 
             deleteContact() {
