@@ -21,8 +21,9 @@ public class ExportContactsToExcelJob : BackgroundService
     {
         try
         {
+#if DEBUG
             await ExportProcessAsync();
-
+#endif
             _logger.LogInformation("Произведена выгрузка контактов при старте приложения.");
 
             while (!stoppingToken.IsCancellationRequested)
