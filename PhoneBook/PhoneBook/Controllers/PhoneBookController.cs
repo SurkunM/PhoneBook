@@ -146,16 +146,14 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            var contact = await _deleteContactHandler.FindContactByIdAsync(id);
+            var isDelete = await _deleteContactHandler.DeleteSingleContactHandlerAsync(id);
 
-            if (contact is null)
+            if (!isDelete)
             {
                 _logger.LogError("Ошибка! Контакт для удаления не найден. id={id}", id);
 
                 return BadRequest("Контакт для удаления не найден.");
             }
-
-            await _deleteContactHandler.DeleteSingleContactHandlerAsync(contact);
 
             return NoContent();
         }

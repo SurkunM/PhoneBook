@@ -1,29 +1,40 @@
-﻿using PhoneBook.Contracts.Repositories;
-using PhoneBook.Model;
+﻿using PhoneBook.Contracts.IRepositories;
+using PhoneBook.Contracts.IUnitOfWork;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
 public class DeleteContactHandler
 {
-    private readonly IContactsRepository _contactsRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteContactHandler(IContactsRepository contactsRepository)
+    public DeleteContactHandler(IUnitOfWork unitOfWork)
     {
-        _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public Task<Contact?> FindContactByIdAsync(int id)
+    public async Task<bool> DeleteSingleContactHandlerAsync(int id)
     {
-        return _contactsRepository.FindContactByIdAsync(id);
+        var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
+        var contact = await contactsRepository.FindContactByIdAsync(id);
+
+        if (contact is null)
+        {
+            return false;
+        }
+
+        contactsRepository.Delete(contact);
+
+        await _unitOfWork.SaveAsync();
+
+        return true;
     }
 
-    public Task DeleteSingleContactHandlerAsync(Contact contact)
+    public async Task DeleteAllSelectedContactHandlerAsync(List<int> rangeId)
     {
-        return _contactsRepository.DeleteAsync(contact);
-    }
+        var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
 
-    public Task DeleteAllSelectedContactHandlerAsync(List<int> rangeId)
-    {
-        return _contactsRepository.DeleteRangeByIdAsync(rangeId);
+        await contactsRepository.DeleteRangeByIdAsync(rangeId);
+
+        await _unitOfWork.SaveAsync();
     }
 }

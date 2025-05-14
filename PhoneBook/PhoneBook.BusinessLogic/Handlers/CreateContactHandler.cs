@@ -1,24 +1,30 @@
 ﻿using PhoneBook.Contracts.Dto;
-using PhoneBook.Contracts.Repositories;
+using PhoneBook.Contracts.IRepositories;
+using PhoneBook.Contracts.IUnitOfWork;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
 public class CreateContactHandler
 {
-    private readonly IContactsRepository _contactsRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateContactHandler(IContactsRepository contactsRepository)
+    public CreateContactHandler(IUnitOfWork unitOfWork)
     {
-        _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public Task HandlerAsync(ContactDto contactDto)
+    public async Task HandlerAsync(ContactDto contactDto)
     {
-        return _contactsRepository.CreateAsync(contactDto.ToModel());
+        var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
+        await contactsRepository.CreateAsync(contactDto.ToModel());
+
+        await _unitOfWork.SaveAsync();
     }
 
     public Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
     {
-        return _contactsRepository.CheckIsPhoneExistAsync(contactDto);
+        var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
+
+        return contactsRepository.CheckIsPhoneExistAsync(contactDto);
     }
 }

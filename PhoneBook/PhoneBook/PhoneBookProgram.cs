@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using PhoneBook.BusinessLogic.Handlers;
 using PhoneBook.BusinessLogic.Services;
-using PhoneBook.Contracts.Repositories;
+using PhoneBook.Contracts.IRepositories;
+using PhoneBook.Contracts.IUnitOfWork;
 using PhoneBook.DataAccess;
 using PhoneBook.DataAccess.Repositories;
+using PhoneBook.DataAccess.UnitOfWork;
 using PhoneBook.Jobs;
 
 namespace PhoneBook;
@@ -19,19 +21,21 @@ public class PhoneBookProgram
             options
                 .UseSqlServer(builder.Configuration.GetConnectionString("PhoneBookConnection"))
                 .UseLazyLoadingProxies();
-        }, ServiceLifetime.Transient, ServiceLifetime.Transient);
+        }, ServiceLifetime.Scoped, ServiceLifetime.Transient);
 
         builder.Services.AddControllersWithViews();
 
-        builder.Services.AddTransient<DbInitializer>();
+        builder.Services.AddScoped<DbInitializer>();
+
+        builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
         builder.Services.AddTransient<IContactsRepository, ContactsRepository>();
 
         builder.Services.AddTransient<GetContactsHandler>();
         builder.Services.AddTransient<CreateContactHandler>();
         builder.Services.AddTransient<UpdateContactHandler>();
         builder.Services.AddTransient<DeleteContactHandler>();
-
         builder.Services.AddTransient<GenerateContactsExcelHandler>();
+
         builder.Services.AddTransient<ExcelGenerateService>();
 
         builder.Services.AddHostedService<ExportContactsToExcelJob>();
@@ -42,7 +46,7 @@ public class PhoneBookProgram
         {
             try
             {
-                var dbInitializer = app.Services.GetRequiredService<DbInitializer>();
+                var dbInitializer = scope.ServiceProvider.GetRequiredService<DbInitializer>();
                 dbInitializer.Initialize();
             }
             catch (Exception ex)

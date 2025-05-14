@@ -2,7 +2,7 @@
 using PhoneBook.Contracts.Responses;
 using PhoneBook.Model;
 
-namespace PhoneBook.Contracts.Repositories;
+namespace PhoneBook.Contracts.IRepositories;
 
 public interface IContactsRepository : IRepository<Contact>
 {

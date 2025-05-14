@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using PhoneBook.BusinessLogic.Services;
-using PhoneBook.Contracts.Repositories;
+using PhoneBook.Contracts.IRepositories;
+using PhoneBook.Contracts.IUnitOfWork;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
@@ -9,17 +10,19 @@ public class GenerateContactsExcelHandler
 {
     private readonly ExcelGenerateService _excelService;
 
-    private readonly IContactsRepository _contactsRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GenerateContactsExcelHandler(ExcelGenerateService excelService, IContactsRepository contactsRepository)
+    public GenerateContactsExcelHandler(ExcelGenerateService excelService, IUnitOfWork unitOfWork)
     {
-        _excelService = excelService;
-        _contactsRepository = contactsRepository;
+        _excelService = excelService ?? throw new ArgumentNullException(nameof(excelService));
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
     public async Task<MemoryStream> ExcelGenerateHandlerAsync()
     {
-        var contacts = await _contactsRepository.GetContactsAsync();
+        var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
+
+        var contacts = await contactsRepository.GetContactsAsync();
 
         return _excelService.GenerateContactsExcel(contacts);
     }

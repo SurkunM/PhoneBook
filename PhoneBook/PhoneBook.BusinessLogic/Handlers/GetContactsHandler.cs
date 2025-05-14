@@ -1,20 +1,23 @@
 ﻿using PhoneBook.Contracts.Dto;
-using PhoneBook.Contracts.Repositories;
+using PhoneBook.Contracts.IRepositories;
+using PhoneBook.Contracts.IUnitOfWork;
 using PhoneBook.Contracts.Responses;
 
 namespace PhoneBook.BusinessLogic.Handlers;
 
 public class GetContactsHandler
 {
-    private readonly IContactsRepository _contactsRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetContactsHandler(IContactsRepository contactsRepository)
+    public GetContactsHandler(IUnitOfWork unitOfWork)
     {
-        _contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
     public Task<PhoneBookPage> HandlerAsync(GetContactsQueryParameters queryParameters)
     {
-        return _contactsRepository.GetContactsAsync(queryParameters);
+        var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
+
+        return contactsRepository.GetContactsAsync(queryParameters);
     }
 }

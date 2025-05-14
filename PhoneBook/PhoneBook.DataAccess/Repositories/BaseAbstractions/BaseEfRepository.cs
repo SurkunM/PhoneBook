@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PhoneBook.Contracts.Repositories;
+using PhoneBook.Contracts.IRepositories;
 
 namespace PhoneBook.DataAccess.Repositories.BaseAbstractions;
 
@@ -15,14 +15,12 @@ public class BaseEfRepository<T> : IRepository<T> where T : class
         _dbSet = _dbContext.Set<T>();
     }
 
-    public async Task CreateAsync(T entity)
+    public Task CreateAsync(T entity)
     {
-        await _dbSet.AddAsync(entity);
-
-        await SaveAsync();
+        return _dbSet.AddAsync(entity).AsTask();
     }
 
-    public async Task DeleteAsync(T entity)
+    public void Delete(T entity)
     {
         if (_dbContext.Entry(entity).State == EntityState.Detached)
         {
@@ -30,20 +28,11 @@ public class BaseEfRepository<T> : IRepository<T> where T : class
         }
 
         _dbSet.Remove(entity);
-
-        await SaveAsync();
     }
 
-    public async Task UpdateAsync(T entity)
+    public void Update(T entity)
     {
         _dbSet.Attach(entity);
         _dbContext.Entry(entity).State = EntityState.Modified;
-
-        await SaveAsync();
-    }
-
-    public Task SaveAsync()
-    {
-        return _dbContext.SaveChangesAsync();
     }
 }

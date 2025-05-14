@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PhoneBook.Contracts.Dto;
-using PhoneBook.Contracts.Repositories;
+using PhoneBook.Contracts.IRepositories;
 using PhoneBook.Contracts.Responses;
 using PhoneBook.DataAccess.Repositories.BaseAbstractions;
 using PhoneBook.Model;
@@ -116,8 +116,6 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
             .ToListAsync();
 
         _dbSet.RemoveRange(contacts);
-
-        await SaveAsync();
     }
 
     public Task<Contact?> FindContactByIdAsync(int id)
