@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PhoneBook.BusinessLogic\PhoneBook.BusinessLogic.csproj" />
-    <ProjectReference Include="..\PhoneBook.Contacts\PhoneBook.Contracts.csproj" />
+    <ProjectReference Include="..\PhoneBook.Contracts\PhoneBook.Contracts.csproj" />
     <ProjectReference Include="..\PhoneBook.DataAccess\PhoneBook.DataAccess.csproj" />
   </ItemGroup>
 

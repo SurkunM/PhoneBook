@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PhoneBook.Contacts\PhoneBook.Contracts.csproj" />
+    <ProjectReference Include="..\PhoneBook.Contracts\PhoneBook.Contracts.csproj" />
     <ProjectReference Include="..\PhoneBook.Model\PhoneBook.Model.csproj" />
   </ItemGroup>
 
