@@ -14,7 +14,7 @@ public class GetContactsHandler
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public Task<PhoneBookPage> HandlerAsync(GetContactsQueryParameters queryParameters)
+    public Task<PhoneBookPage> HandleAsync(GetContactsQueryParameters queryParameters)
     {
         var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
 

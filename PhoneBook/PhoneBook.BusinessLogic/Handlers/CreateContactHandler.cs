@@ -13,7 +13,7 @@ public class CreateContactHandler
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public async Task HandlerAsync(ContactDto contactDto)
+    public async Task HandleAsync(ContactDto contactDto)
     {
         var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
         await contactsRepository.CreateAsync(contactDto.ToModel());

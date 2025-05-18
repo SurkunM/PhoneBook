@@ -48,7 +48,7 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
     public async Task<PhoneBookPage> GetContactsAsync(GetContactsQueryParameters queryParameters)
     {
-        var querySbSet = _dbSet.AsNoTracking();
+        var querySbSet = DbSet.AsNoTracking();
 
         if (!string.IsNullOrEmpty(queryParameters.Term))
         {
@@ -81,7 +81,7 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
             contactsDtoSorted[i].Index = (queryParameters.PageNumber - 1) * queryParameters.PageSize + i + 1; ;
         }
 
-        var totalCount = await _dbSet.CountAsync();
+        var totalCount = await DbSet.CountAsync();
 
         if (!string.IsNullOrEmpty(queryParameters.Term))
         {
@@ -97,7 +97,7 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
     public Task<List<ContactDto>> GetContactsAsync()
     {
-        return _dbSet.AsNoTracking()
+        return DbSet.AsNoTracking()
             .Select((c) => new ContactDto
             {
                 Id = c.Id,
@@ -110,21 +110,21 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
     public async Task DeleteRangeByIdAsync(List<int> rangeId)
     {
-        var contacts = await _dbSet
+        var contacts = await DbSet
             .AsNoTracking()
             .Where(c => rangeId.Contains(c.Id))
             .ToListAsync();
 
-        _dbSet.RemoveRange(contacts);
+        DbSet.RemoveRange(contacts);
     }
 
     public Task<Contact?> FindContactByIdAsync(int id)
     {
-        return _dbSet.FirstOrDefaultAsync(c => c.Id == id);
+        return DbSet.FirstOrDefaultAsync(c => c.Id == id);
     }
 
     public Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
     {
-        return _dbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
+        return DbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
     }
 }

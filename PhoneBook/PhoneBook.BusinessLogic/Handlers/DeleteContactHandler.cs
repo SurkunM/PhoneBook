@@ -1,4 +1,5 @@
-﻿using PhoneBook.Contracts.IRepositories;
+﻿using Microsoft.Extensions.Logging;
+using PhoneBook.Contracts.IRepositories;
 using PhoneBook.Contracts.IUnitOfWork;
 
 namespace PhoneBook.BusinessLogic.Handlers;
@@ -7,29 +8,45 @@ public class DeleteContactHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteContactHandler(IUnitOfWork unitOfWork)
+    private readonly ILogger<DeleteContactHandler> _logger;
+
+    public DeleteContactHandler(IUnitOfWork unitOfWork, ILogger<DeleteContactHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> DeleteSingleContactHandlerAsync(int id)
+    public async Task<bool> DeleteSingleContactHandleAsync(int id)
     {
-        var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
-        var contact = await contactsRepository.FindContactByIdAsync(id);
-
-        if (contact is null)
+        try
         {
-            return false;
+            var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
+            _unitOfWork.BeginTransaction();
+
+            var contact = await contactsRepository.FindContactByIdAsync(id);
+
+            if (contact is null)
+            {
+                return false;
+            }
+
+            contactsRepository.Delete(contact);
+
+            await _unitOfWork.SaveAsync();
+
+            return true;
         }
+        catch (Exception ex)
+        {
+            _unitOfWork.RollbackTransaction();
 
-        contactsRepository.Delete(contact);
+            _logger.LogError(ex, "Ошибка! При удалении контакта из БД произошла ошибка. Транзакция отменена");
 
-        await _unitOfWork.SaveAsync();
-
-        return true;
+            throw;
+        }
     }
 
-    public async Task DeleteAllSelectedContactHandlerAsync(List<int> rangeId)
+    public async Task DeleteAllSelectedContactHandleAsync(List<int> rangeId)
     {
         var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
 

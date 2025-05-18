@@ -13,7 +13,7 @@ public class UpdateContactHandler
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public Task HandlerAsync(ContactDto contactDto)
+    public Task HandleAsync(ContactDto contactDto)
     {
         var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
 

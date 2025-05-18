@@ -5,34 +5,34 @@ namespace PhoneBook.DataAccess.Repositories.BaseAbstractions;
 
 public class BaseEfRepository<T> : IRepository<T> where T : class
 {
-    protected PhoneBookDbContext _dbContext;
+    protected PhoneBookDbContext DbContext;
 
-    protected DbSet<T> _dbSet;
+    protected DbSet<T> DbSet;
 
     public BaseEfRepository(PhoneBookDbContext dbContext)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _dbSet = _dbContext.Set<T>();
+        DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        DbSet = DbContext.Set<T>();
     }
 
     public Task CreateAsync(T entity)
     {
-        return _dbSet.AddAsync(entity).AsTask();
+        return DbSet.AddAsync(entity).AsTask();
     }
 
     public void Delete(T entity)
     {
-        if (_dbContext.Entry(entity).State == EntityState.Detached)
+        if (DbContext.Entry(entity).State == EntityState.Detached)
         {
-            _dbSet.Attach(entity);
+            DbSet.Attach(entity);
         }
 
-        _dbSet.Remove(entity);
+        DbSet.Remove(entity);
     }
 
     public void Update(T entity)
     {
-        _dbSet.Attach(entity);
-        _dbContext.Entry(entity).State = EntityState.Modified;
+        DbSet.Attach(entity);
+        DbContext.Entry(entity).State = EntityState.Modified;
     }
 }

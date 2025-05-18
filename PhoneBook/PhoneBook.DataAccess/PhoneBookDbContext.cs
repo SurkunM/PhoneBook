@@ -13,9 +13,9 @@ public class PhoneBookDbContext : DbContext
     {
         modelBuilder.Entity<Contact>(b =>
         {
-            b.Property(c => c.FirstName).IsRequired().HasMaxLength(50);
-            b.Property(c => c.LastName).IsRequired().HasMaxLength(50);            
-            b.Property(c => c.Phone).IsRequired().HasMaxLength(50);
+            b.Property(c => c.FirstName).HasMaxLength(50);
+            b.Property(c => c.LastName).HasMaxLength(50);            
+            b.Property(c => c.Phone).HasMaxLength(50);
         });
     }
 }

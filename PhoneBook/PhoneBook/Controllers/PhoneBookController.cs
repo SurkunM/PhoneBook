@@ -31,7 +31,7 @@ public class PhoneBookController : ControllerBase
         _updateContactHandler = updateContactHandler ?? throw new ArgumentNullException(nameof(updateContactHandler));
         _deleteContactHandler = deleteContactHandler ?? throw new ArgumentNullException(nameof(deleteContactHandler));
         _generateContactsExcelHandler = generateContactsExcelHandler ?? throw new ArgumentNullException(nameof(generateContactsExcelHandler));
-        _logger = logger;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     [HttpGet]
@@ -46,7 +46,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            var contacts = await _getContactsHandler.HandlerAsync(queryParameters);
+            var contacts = await _getContactsHandler.HandleAsync(queryParameters);
 
             return Ok(contacts);
         }
@@ -84,7 +84,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            await _createContactHandler.HandlerAsync(contactDto);
+            await _createContactHandler.HandleAsync(contactDto);
 
             return NoContent();
         }
@@ -122,7 +122,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            await _updateContactHandler.HandlerAsync(contactDto);
+            await _updateContactHandler.HandleAsync(contactDto);
 
             return NoContent();
         }
@@ -146,7 +146,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            var isDelete = await _deleteContactHandler.DeleteSingleContactHandlerAsync(id);
+            var isDelete = await _deleteContactHandler.DeleteSingleContactHandleAsync(id);
 
             if (!isDelete)
             {
@@ -177,7 +177,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-            await _deleteContactHandler.DeleteAllSelectedContactHandlerAsync(selectedContactsId);
+            await _deleteContactHandler.DeleteAllSelectedContactHandleAsync(selectedContactsId);
 
             return NoContent();
         }
@@ -194,7 +194,7 @@ public class PhoneBookController : ControllerBase
     {
         try
         {
-            var memoryStream = await _generateContactsExcelHandler.ExcelGenerateHandlerAsync();
+            var memoryStream = await _generateContactsExcelHandler.ExcelGenerateHandleAsync();
 
             return _generateContactsExcelHandler.CreateExcelFileResult(memoryStream, $"contacts_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
         }

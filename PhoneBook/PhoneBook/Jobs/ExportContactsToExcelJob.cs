@@ -45,7 +45,7 @@ public class ExportContactsToExcelJob : BackgroundService
         using var scope = _serviceProvider.CreateScope();
         var handler = scope.ServiceProvider.GetRequiredService<GenerateContactsExcelHandler>();
 
-        var excelMemoryStream = await handler.ExcelGenerateHandlerAsync();
+        var excelMemoryStream = await handler.ExcelGenerateHandleAsync();
 
         await handler.SaveContactsToExcelFileAsync(excelMemoryStream, _configuration);
     }

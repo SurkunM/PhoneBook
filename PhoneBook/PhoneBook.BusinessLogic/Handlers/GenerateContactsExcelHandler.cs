@@ -18,7 +18,7 @@ public class GenerateContactsExcelHandler
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public async Task<MemoryStream> ExcelGenerateHandlerAsync()
+    public async Task<MemoryStream> ExcelGenerateHandleAsync()
     {
         var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
 
