@@ -27,7 +27,9 @@ public class PhoneBookProgram
 
         builder.Services.AddScoped<DbInitializer>();
 
+        builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<PhoneBookDbContext>());
         builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+
         builder.Services.AddTransient<IContactsRepository, ContactsRepository>();
 
         builder.Services.AddTransient<GetContactsHandler>();

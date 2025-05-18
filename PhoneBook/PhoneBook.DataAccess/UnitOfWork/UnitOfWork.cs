@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using PhoneBook.Contracts.IUnitOfWork;
 
@@ -10,9 +11,11 @@ public class UnitOfWork : IUnitOfWork
 
     private readonly IServiceProvider _serviceProvider;
 
+    private IDbContextTransaction? _transaction;
+
     private bool _disposed;
 
-    public UnitOfWork(PhoneBookDbContext db, IServiceProvider serviceProvider)
+    public UnitOfWork(DbContext db, IServiceProvider serviceProvider)
     {
         _db = db;
         _serviceProvider = serviceProvider;
@@ -25,11 +28,40 @@ public class UnitOfWork : IUnitOfWork
         return _serviceProvider.GetRequiredService<T>();
     }
 
-    public Task SaveAsync()
+    public void BeginTransaction()
     {
         ThrowExceptionIfDisposed();
 
-        return _db.SaveChangesAsync();
+        if (_transaction != null)
+        {
+            throw new InvalidOperationException("Транзакция уже создана");
+        }
+
+        _transaction = _db.Database.BeginTransaction();
+    }
+
+    public void RollbackTransaction()
+    {
+        ThrowExceptionIfDisposed();
+
+        if (_transaction is not null)
+        {
+            _transaction.Rollback();
+            _transaction = null;
+        }
+    }
+
+    public async Task SaveAsync()
+    {
+        ThrowExceptionIfDisposed();
+
+        await _db.SaveChangesAsync();
+
+        if (_transaction is not null)
+        {
+            _transaction.Commit();
+            _transaction = null;
+        }
     }
 
     public void Dispose()
