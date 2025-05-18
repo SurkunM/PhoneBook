@@ -51,7 +51,7 @@
         </template>
 
         <div class="d-flex justify-end">
-            <v-btn @click="showExportToExcelModal"
+            <v-btn @click="exportToExcel"
                    color="primary"
                    size="small"
                    class="me-4">
@@ -63,7 +63,8 @@
                       :items="contacts"
                       :item-value="id"
                       hide-default-footer
-                      :items-per-page="contactsPerPage">
+                      :items-per-page="contactsPerPage"
+                      no-data-text="Список контактов пуст">
 
             <template v-slot:[`header.lastName`]="{ column }">
                 <button @click="sortBy(column)">Фамилия</button>
@@ -121,10 +122,6 @@
         <template>
             <all-delete-modal ref="confirmAllDeleteModal" @delete="deleteAllSelected"></all-delete-modal>
         </template>
-
-        <template>
-            <export-to-excel-modal ref="confirmExportToExcelModal" @export="exportToExcel"></export-to-excel-modal>
-        </template>
     </v-card>
 </template>
 
@@ -134,7 +131,6 @@
     import SingleDeleteModal from "./SingleDeleteModal.vue";
     import AllDeleteModal from "./AllDeleteModal.vue";
     import EditingModal from "./EditingModal.vue";
-    import ExportToExcelModal from "./ExprotToExcelModal.vue";
 
     export default {
         components: {
@@ -143,8 +139,7 @@
             AllDeleteModal,
             SingleDeleteModal,
 
-            EditingModal,
-            ExportToExcelModal
+            EditingModal
         },
 
         data() {
@@ -234,9 +229,6 @@
                     })
                     .catch(() => {
                         this.showErrorAlert("Ошибка! Не удалось выгрузить контакты в excel файл.");
-                    })
-                    .finally(() => {
-                        this.$refs.confirmExportToExcelModal.hide();
                     });
             },
 
@@ -252,10 +244,6 @@
             showEditingModal(contact) {
                 this.selectedContact = contact;
                 this.$refs.contactEditingModal.show(this.selectedContact);
-            },
-
-            showExportToExcelModal() {
-                this.$refs.confirmExportToExcelModal.show();
             },
 
             deleteContact() {

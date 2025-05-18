@@ -8,7 +8,7 @@
 
     <v-alert text="Контакт успешно создан" type="success" variant="outlined" v-show="isShowSuccessAlert"></v-alert>
 
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="submitForm" class="mx-4 my-4">
         <v-text-field v-model.trim="contact.lastName"
                       :error-messages="errors.lastName"
                       @change="checkLastNameFieldComplete"
