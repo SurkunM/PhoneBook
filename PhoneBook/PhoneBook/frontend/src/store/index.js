@@ -126,32 +126,28 @@ export default createStore({
             commit("setIsLoading", true);
 
             return axios.delete("/api/PhoneBook/DeleteContact", {
-                headers: { 'Content-Type': "application/json" },
+                headers: { "Content-Type": "application/json" },
                 data: id
-            })
-                .then(() => {
-                    commit("removeContactId", id);
-                    dispatch("loadContacts");
-                })
-                .finally(() => {
-                    commit("setIsLoading", false);
-                });
+            }).then(() => {
+                commit("removeContactId", id);
+                dispatch("loadContacts");
+            }).finally(() => {
+                commit("setIsLoading", false);
+            });
         },
 
         deleteAllSelectedContacts({ commit, dispatch, state }) {
             commit("setIsLoading", true);
 
             return axios.delete("/api/PhoneBook/DeleteAllSelectedContact", {
-                headers: { 'Content-Type': "application/json" },
+                headers: { "Content-Type": "application/json" },
                 data: state.selectedContactsId
-            })
-                .then(() => {
-                    commit("switchAllCheckbox", true);
-                    dispatch("loadContacts");
-                })
-                .finally(() => {
-                    commit("setIsLoading", false);
-                });
+            }).then(() => {
+                commit("switchAllCheckbox", true);
+                dispatch("loadContacts");
+            }).finally(() => {
+                commit("setIsLoading", false);
+            });
         },
 
         updateContact({ commit, dispatch }, contact) {
@@ -205,7 +201,7 @@ export default createStore({
                     document.body.appendChild(link);
 
                     link.click();
-                    
+
                     setTimeout(() => {
                         document.body.removeChild(link);
                         window.URL.revokeObjectURL(url);
