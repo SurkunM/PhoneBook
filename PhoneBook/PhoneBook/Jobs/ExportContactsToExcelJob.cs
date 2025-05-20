@@ -12,9 +12,9 @@ public class ExportContactsToExcelJob : BackgroundService
 
     public ExportContactsToExcelJob(IServiceProvider serviceProvider, IConfiguration configuration, ILogger<ExportContactsToExcelJob> logger)
     {
-        _serviceProvider = serviceProvider;
-        _configuration = configuration;
-        _logger = logger;
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger)) ;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

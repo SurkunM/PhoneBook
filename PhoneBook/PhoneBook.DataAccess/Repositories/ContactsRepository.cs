@@ -16,7 +16,7 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
     public ContactsRepository(PhoneBookDbContext dbContext, ILogger<ContactsRepository> logger) : base(dbContext)
     {
-        _logger = logger;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     private static Expression<Func<Contact, object>> GetPropertyExpression(string propertyName)

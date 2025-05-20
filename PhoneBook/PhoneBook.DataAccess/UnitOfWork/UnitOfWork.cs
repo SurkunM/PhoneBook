@@ -17,8 +17,8 @@ public class UnitOfWork : IUnitOfWork
 
     public UnitOfWork(DbContext db, IServiceProvider serviceProvider)
     {
-        _db = db;
-        _serviceProvider = serviceProvider;
+        _db = db ?? throw new ArgumentNullException(nameof(db));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
     public T GetRepository<T>() where T : class
@@ -70,6 +70,8 @@ public class UnitOfWork : IUnitOfWork
         {
             return;
         }
+
+        RollbackTransaction();
 
         _db.Dispose();
         _disposed = true;
