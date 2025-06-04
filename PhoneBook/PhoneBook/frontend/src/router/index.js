@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from "vue-router"
-import PhoneBook from "../components/PhoneBook.vue"
+import { createRouter, createWebHistory } from "vue-router";
+import PhoneBook from "../components/PhoneBook.vue";
 
 const routes = [
     {
@@ -10,13 +10,13 @@ const routes = [
     {
         path: "/create",
         name: "create",
-        component: () => import("../components/CreatePhoneBookItem.vue")
+        component: () => import("../components/CreatePhoneBookItem.vue"),
     }
 ]
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes
-})
+});
 
-export default router
+export default router;

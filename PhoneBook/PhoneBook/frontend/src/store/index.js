@@ -40,6 +40,10 @@ export default createStore({
         },
 
         setContacts(state, contacts) {
+            contacts.forEach((c, i) => {
+                c.index = i + 1;
+            });
+
             state.contacts = contacts;
         },
 
@@ -162,6 +166,30 @@ export default createStore({
                 });
         },
 
+        exportToExcel({ commit }) {
+            commit("setIsLoading", true);
+
+            return axios.get("/api/PhoneBook/ExportToExcel", { responseType: 'blob' })
+                .then(response => {
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                    const link = document.createElement('a');
+
+                    link.href = url;
+                    link.setAttribute('download', 'contacts.xlsx');
+                    document.body.appendChild(link);
+
+                    link.click();
+
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                    }, 0);
+                })
+                .finally(() => {
+                    commit("setIsLoading", false);
+                });
+        },
+        //TODO: Делее перенести в mutations
         switchAllSelect({ commit, state }) {
             commit("switchAllCheckbox", state.isAllSelect);
         },
@@ -186,30 +214,6 @@ export default createStore({
             commit("switchAllCheckbox", true);
 
             dispatch("loadContacts");
-        },
-
-        exportToExcel({ commit }) {
-            commit("setIsLoading", true);
-
-            return axios.get("/api/PhoneBook/ExportToExcel", { responseType: 'blob' })
-                .then(response => {
-                    const url = window.URL.createObjectURL(new Blob([response.data]));
-                    const link = document.createElement('a');
-
-                    link.href = url;
-                    link.setAttribute('download', 'contacts.xlsx');
-                    document.body.appendChild(link);
-
-                    link.click();
-
-                    setTimeout(() => {
-                        document.body.removeChild(link);
-                        window.URL.revokeObjectURL(url);
-                    }, 0);
-                })
-                .finally(() => {
-                    commit("setIsLoading", false);
-                });
         },
 
         navigateToPage({ commit, dispatch }, nextPage) {

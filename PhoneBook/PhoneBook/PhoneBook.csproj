@@ -21,8 +21,4 @@
     <ProjectReference Include="..\PhoneBook.DataAccess\PhoneBook.DataAccess.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="frontend\src\assets\" />
-  </ItemGroup>
-
 </Project>
