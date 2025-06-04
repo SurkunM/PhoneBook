@@ -52,10 +52,10 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
         if (!string.IsNullOrEmpty(queryParameters.Term))
         {
-            queryParameters.Term = queryParameters.Term.Trim().ToUpper();
-            querySbSet = querySbSet.Where(c => c.FirstName.ToUpper().Contains(queryParameters.Term)
-                || c.LastName.ToUpper().Contains(queryParameters.Term)
-                || c.Phone.ToUpper().Contains(queryParameters.Term));
+            queryParameters.Term = queryParameters.Term.Trim();
+            querySbSet = querySbSet.Where(c => c.FirstName.Contains(queryParameters.Term)
+                || c.LastName.Contains(queryParameters.Term)
+                || c.Phone.Contains(queryParameters.Term));
         }
 
         var orderByExpression = CreateSortExpression(queryParameters.SortBy);
@@ -76,12 +76,7 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
             })
             .ToListAsync();
 
-        for (int i = 0; i < contactsDtoSorted.Count; i++)
-        {
-            contactsDtoSorted[i].Index = (queryParameters.PageNumber - 1) * queryParameters.PageSize + i + 1; ;
-        }
-
-        var totalCount = await DbSet.CountAsync();
+        var totalCount = DbSet.Count();
 
         if (!string.IsNullOrEmpty(queryParameters.Term))
         {
@@ -98,7 +93,7 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
     public Task<List<ContactDto>> GetContactsAsync()
     {
         return DbSet.AsNoTracking()
-            .Select((c) => new ContactDto
+            .Select(c => new ContactDto
             {
                 Id = c.Id,
                 FirstName = c.FirstName,
@@ -123,8 +118,8 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
         return DbSet.FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
+    public bool IsPhoneExist(ContactDto contactDto)
     {
-        return DbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
+        return DbSet.Any(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
     }
 }

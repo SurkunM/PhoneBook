@@ -6,8 +6,6 @@ public class ContactDto
 {
     public int Id { get; set; }
 
-    public int Index { get; set; }
-
     [Required(ErrorMessage = "Поле фамилия не заполнено")]
     public required string FirstName { get; set; }
 

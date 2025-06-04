@@ -1,4 +1,6 @@
-﻿using PhoneBook.Contracts.Dto;
+﻿using Microsoft.Extensions.Logging;
+using PhoneBook.Contracts.Dto;
+using PhoneBook.Contracts.Extensions;
 using PhoneBook.Contracts.IRepositories;
 using PhoneBook.Contracts.IUnitOfWork;
 
@@ -8,24 +10,42 @@ public class UpdateContactHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateContactHandler(IUnitOfWork unitOfWork)
+    private readonly ILogger<UpdateContactHandler> _logger;
+
+    public UpdateContactHandler(IUnitOfWork unitOfWork, ILogger<UpdateContactHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public Task HandleAsync(ContactDto contactDto)
+    public async Task<bool> HandleAsync(ContactDto contactDto)
     {
         var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
 
-        contactsRepository.Update(contactDto.ToModel());
+        try
+        {
+            _unitOfWork.BeginTransaction();
 
-        return _unitOfWork.SaveAsync();
-    }
+            if (contactsRepository.IsPhoneExist(contactDto))
+            {
+                _logger.LogError("Ошибка! Попытка добавить номер телефона, который уже существует. {Phone}", contactDto.Phone);
 
-    public Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto)
-    {
-        var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
+                return false;
+            }
 
-        return contactsRepository.CheckIsPhoneExistAsync(contactDto);
+            contactsRepository.Update(contactDto.ToModel());
+
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "При обновлении данных контакта произошла ошибка. Транзакция отменена.");
+
+            _unitOfWork.RollbackTransaction();
+
+            throw;
+        }
     }
 }

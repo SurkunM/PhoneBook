@@ -14,5 +14,5 @@ public interface IContactsRepository : IRepository<Contact>
 
     Task DeleteRangeByIdAsync(List<int> rangeId);
 
-    Task<bool> CheckIsPhoneExistAsync(ContactDto contactDto);
+    bool IsPhoneExist(ContactDto contactDto);
 }

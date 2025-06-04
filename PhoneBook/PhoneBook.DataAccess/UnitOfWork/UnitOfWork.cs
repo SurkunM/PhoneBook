@@ -84,6 +84,6 @@ public class UnitOfWork : IUnitOfWork
             return;
         }
 
-        throw new ObjectDisposedException(null);
+        throw new ObjectDisposedException("Объект уже удален.");
     }
 }

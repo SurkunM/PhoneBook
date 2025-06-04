@@ -75,16 +75,14 @@ public class PhoneBookController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        if (await _createContactHandler.CheckIsPhoneExistAsync(contactDto))
-        {
-            _logger.LogError("Ошибка! Попытка создать контакт с существующим в бд номером. {Phone}", contactDto.Phone);
-
-            return Conflict("Контакт с таким номером уже существует.");
-        }
-
         try
         {
-            await _createContactHandler.HandleAsync(contactDto);
+           var isCreated = await _createContactHandler.HandleAsync(contactDto);
+
+            if (!isCreated)
+            {
+                return BadRequest("Ошибка! Контакт с таким номером уже существует.");
+            }
 
             return NoContent();
         }
@@ -113,16 +111,14 @@ public class PhoneBookController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        if (await _updateContactHandler.CheckIsPhoneExistAsync(contactDto))
-        {
-            _logger.LogError("Ошибка! Попытка добавить номер телефона, который уже существует. {Phone}", contactDto.Phone);
-
-            return Conflict("Номер уже существует.");
-        }
-
         try
         {
-            await _updateContactHandler.HandleAsync(contactDto);
+            var isUpdated = await _updateContactHandler.HandleAsync(contactDto);
+
+            if (!isUpdated)
+            {
+                return BadRequest("Ошибка! Контакт с таким номером уже существует.");
+            }
 
             return NoContent();
         }

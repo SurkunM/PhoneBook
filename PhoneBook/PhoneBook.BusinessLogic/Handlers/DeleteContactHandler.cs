@@ -18,15 +18,18 @@ public class DeleteContactHandler
 
     public async Task<bool> DeleteSingleContactHandleAsync(int id)
     {
+        var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
+
         try
         {
-            var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
             _unitOfWork.BeginTransaction();
 
             var contact = await contactsRepository.FindContactByIdAsync(id);
 
             if (contact is null)
             {
+                _logger.LogError("Не удалось найти контакт с id={id}", id);
+
                 return false;
             }
 
@@ -40,7 +43,7 @@ public class DeleteContactHandler
         {
             _unitOfWork.RollbackTransaction();
 
-            _logger.LogError(ex, "Ошибка! При удалении контакта из БД произошла ошибка. Транзакция отменена");
+            _logger.LogError(ex, "При удалении контакта из БД произошла ошибка. Транзакция отменена");
 
             throw;
         }

@@ -1,6 +1,7 @@
-﻿using PhoneBook.Model;
+﻿using PhoneBook.Contracts.Dto;
+using PhoneBook.Model;
 
-namespace PhoneBook.Contracts.Dto;
+namespace PhoneBook.Contracts.Extensions;
 
 public static class MappingExtensions
 {
