@@ -119,7 +119,7 @@
                     return;
                 }
 
-                this.$emit('save', this.editedContact)
+                this.$emit('save', this.editedContact);
             },
 
             resetErrors() {

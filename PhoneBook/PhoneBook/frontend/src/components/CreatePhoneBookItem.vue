@@ -6,7 +6,11 @@
         </h2>
     </v-card-title>
 
-    <v-alert text="Контакт успешно создан" type="success" variant="outlined" v-show="isShowSuccessAlert"></v-alert>
+    <v-snackbar v-model="isShowSuccessAlert"
+                :timeout="2000"
+                color="success"
+                >Контакт успешно создан
+    </v-snackbar>
 
     <form @submit.prevent="submitForm" class="mx-4 my-4">
         <v-text-field v-model.trim="contact.lastName"
@@ -54,7 +58,7 @@
                     lastName: "",
                     phone: ""
                 }
-            }
+            };
         },
 
         methods: {
@@ -150,10 +154,6 @@
 
             showSuccessAlert() {
                 this.isShowSuccessAlert = true;
-
-                setTimeout(() => {
-                    this.isShowSuccessAlert = false;
-                }, 1500);
             }
         }
     }

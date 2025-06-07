@@ -24,12 +24,9 @@ export default createStore({
             state.isLoading = value;
         },
 
-        setTerm(state, value) {
+        setSearchParameters(state, value) {
             state.term = value;
-        },
-
-        setPageNumber(state, value) {
-            state.pageNumber = value;
+            state.pageNumber = 1;
         },
 
         setSortingParameters(state, payload) {
@@ -188,37 +185,6 @@ export default createStore({
                 .finally(() => {
                     commit("setIsLoading", false);
                 });
-        },
-        //TODO: Делее перенести в mutations
-        switchAllSelect({ commit, state }) {
-            commit("switchAllCheckbox", state.isAllSelect);
-        },
-
-        selectContact({ commit }, id) {
-            commit("addContactId", id);
-        },
-
-        deselectContact({ commit }, id) {
-            commit("removeContactId", id);
-        },
-
-        sortByColumn({ commit, dispatch }, { sortBy, isDesc }) {
-            commit("setSortingParameters", { sortBy, isDesc });
-            dispatch("loadContacts");
-        },
-
-        searchContacts({ commit, dispatch }, term) {
-            commit("setTerm", term);
-            commit("setPageNumber", 1);
-
-            commit("switchAllCheckbox", true);
-
-            dispatch("loadContacts");
-        },
-
-        navigateToPage({ commit, dispatch }, nextPage) {
-            commit("setPageNumber", nextPage);
-            dispatch("loadContacts");
         }
     },
 

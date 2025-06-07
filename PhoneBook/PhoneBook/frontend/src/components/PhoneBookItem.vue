@@ -1,7 +1,7 @@
 ﻿<template>
     <tr>
         <td>
-            <v-checkbox v-model="isChecked" @change="switchCheckbox"></v-checkbox>
+            <v-checkbox class="mt-5" v-model="isChecked" @change="switchCheckbox"></v-checkbox>
         </td>
 
         <td>{{ contact.index }}</td>
@@ -46,9 +46,9 @@
         methods: {
             switchCheckbox() {
                 if (this.isChecked) {
-                    this.$store.dispatch("selectContact", this.contact.id);
+                    this.$store.commit("addContactId", this.contact.id);
                 } else {
-                    this.$store.dispatch("deselectContact", this.contact.id);
+                    this.$store.commit("removeContactId", this.contact.id);
                 }
             }
         },

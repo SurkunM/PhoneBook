@@ -12,16 +12,16 @@
                        height="4">
     </v-progress-linear>
 
-    <v-alert type="success" variant="outlined" v-show="isShowSuccessAlert">
-        <template v-slot:text>
-            <span v-text="alertText"></span>
-        </template>
-    </v-alert>
-    <v-alert type="error" variant="outlined" v-show="isShowErrorAlert">
-        <template v-slot:text>
-            <span v-text="alertText"></span>
-        </template>
-    </v-alert>
+    <v-snackbar v-model="isShowSuccessAlert"
+                :timeout="2000"
+                color="success">
+        {{alertText}}
+    </v-snackbar>
+    <v-snackbar v-model="isShowErrorAlert"
+                :timeout="2000"
+                color="error">
+        {{alertText}}
+    </v-snackbar>
 
     <v-card flat>
         <template v-slot:text>
@@ -63,19 +63,29 @@
                       :items="contacts"
                       :item-value="id"
                       hide-default-footer
+                      :loading="isLoading"
                       :items-per-page="contactsPerPage"
                       no-data-text="Список контактов пуст">
 
             <template v-slot:[`header.lastName`]="{ column }">
                 <button @click="sortBy(column)">Фамилия</button>
+                <v-icon v-if="sortByColumn === column.value">
+                    {{ sortDesc ? 'mdi-menu-up' : 'mdi-menu-down' }}
+                </v-icon>
             </template>
 
             <template v-slot:[`header.firstName`]="{ column }">
                 <button @click="sortBy(column)">Имя</button>
+                <v-icon v-if="sortByColumn === column.value">
+                    {{ sortDesc ? 'mdi-menu-up' : 'mdi-menu-down' }}
+                </v-icon>
             </template>
 
             <template v-slot:[`header.phone`]="{ column }">
                 <button @click="sortBy(column)">Телефон</button>
+                <v-icon v-if="sortByColumn === column.value">
+                    {{ sortDesc ? 'mdi-menu-up' : 'mdi-menu-down' }}
+                </v-icon>
             </template>
 
             <template v-slot:[`header.data-table-select`]>
@@ -155,7 +165,7 @@
 
                 headers: [
                     { value: "data-table-select" },
-                    { value: "id", title: "№" },
+                    { value: "index", title: "№" },
                     { value: "lastName", title: "Фамилия" },
                     { value: "firstName", title: "Имя" },
                     { value: "phone", title: "Телефон" },
@@ -208,7 +218,14 @@
                     return;
                 }
 
-                this.$store.dispatch("searchContacts", this.term);
+                this.$store.commit("setSearchParameters", this.term);
+                this.$store.commit("switchAllCheckbox", true);
+
+                this.$store.dispatch("loadContacts")
+                    .catch(() => {
+                        this.showErrorAlert("Ошибка! Не удалось загрузить контакты.");
+                    });
+
                 this.isSearchMode = true;
             },
 
@@ -218,14 +235,21 @@
                 }
 
                 this.term = "";
-                this.$store.dispatch("searchContacts", this.term);
+                this.$store.commit("setSearchParameters", this.term);
+                this.$store.commit("switchAllCheckbox", true);
+
+                this.$store.dispatch("loadContacts")
+                    .catch(() => {
+                        this.showErrorAlert("Ошибка! Не удалось загрузить контакты.");
+                    });
+
                 this.isSearchMode = false;
             },
 
             exportToExcel() {
                 this.$store.dispatch("exportToExcel")
                     .then(() => {
-                        this.showSuccessAlert("Контакт успешно выгружены в Excel.");
+                        this.showSuccessAlert("Контакы успешно выгружены в Excel.");
                     })
                     .catch(() => {
                         this.showErrorAlert("Ошибка! Не удалось выгрузить контакты в excel файл.");
@@ -283,15 +307,14 @@
                     .catch(error => {
                         if (error.response?.status === 400) {
                             this.$refs.contactEditingModal.checkEditingFieldsIsvalid(contact);
-                        }
-                        else if (error.response?.status === 409) {
+                        } else if (error.response?.status === 409) {
                             this.$refs.contactEditingModal.setExistPhoneInvalid();
                         }
                     });
             },
 
             switchAllSelect() {
-                this.$store.dispatch("switchAllSelect");
+                this.$store.commit("switchAllCheckbox", this.isAllSelect);
             },
 
             sortBy(column) {
@@ -302,34 +325,34 @@
                     this.sortByColumn = column.value;
                 }
 
-                this.$store.dispatch("sortByColumn", {
+                this.$store.commit("setSortingParameters", {
                     sortBy: this.sortByColumn,
                     isDesc: this.sortDesc
-                });
+                })
+
+                this.$store.dispatch("loadContacts")
+                    .catch(() => {
+                        this.showErrorAlert("Ошибка! Не удалось загрузить контакты.");
+                    });
             },
 
             switchPage(nextPage) {
-                this.$store.dispatch("navigateToPage", nextPage);
+                this.$store.commit("setPageNumber", nextPage);
+
+                this.$store.dispatch("loadContacts")
+                    .catch(() => {
+                        this.showErrorAlert("Ошибка! Не удалось загрузить контакты.");
+                    });
             },
 
             showSuccessAlert(text) {
                 this.alertText = text;
                 this.isShowSuccessAlert = true;
-
-                setTimeout(() => {
-                    this.alertText = "";
-                    this.isShowSuccessAlert = false;
-                }, 2000);
             },
 
             showErrorAlert(text) {
                 this.alertText = text;
                 this.isShowErrorAlert = true;
-
-                setTimeout(() => {
-                    this.alertText = "";
-                    this.isShowErrorAlert = false;
-                }, 2000);
             }
         }
     };
