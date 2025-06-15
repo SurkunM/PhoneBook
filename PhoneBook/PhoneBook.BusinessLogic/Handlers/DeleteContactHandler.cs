@@ -30,6 +30,8 @@ public class DeleteContactHandler
             {
                 _logger.LogError("Не удалось найти контакт с id={id}", id);
 
+                _unitOfWork.RollbackTransaction();
+
                 return false;
             }
 

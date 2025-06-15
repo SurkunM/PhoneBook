@@ -30,6 +30,8 @@ public class UpdateContactHandler
             {
                 _logger.LogError("Ошибка! Попытка добавить номер телефона, который уже существует. {Phone}", contactDto.Phone);
 
+                _unitOfWork.RollbackTransaction();
+
                 return false;
             }
 
