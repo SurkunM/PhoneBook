@@ -29,6 +29,10 @@ export default createStore({
             state.pageNumber = 1;
         },
 
+        setPageNumber(state, value) {
+            state.pageNumber = value;
+        },
+
         setSortingParameters(state, payload) {
             const { sortBy, isDesc } = payload;
 
@@ -38,7 +42,7 @@ export default createStore({
 
         setContacts(state, contacts) {
             contacts.forEach((c, i) => {
-                c.index = i + 1;
+                c.index = (state.pageNumber - 1) * state.pageSize + i + 1;
             });
 
             state.contacts = contacts;
