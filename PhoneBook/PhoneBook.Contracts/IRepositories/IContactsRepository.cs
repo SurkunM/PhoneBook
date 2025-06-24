@@ -12,7 +12,7 @@ public interface IContactsRepository : IRepository<Contact>
 
     Task<Contact?> FindContactByIdAsync(int id);
 
-    Task DeleteRangeByIdAsync(List<int> rangeId);
+    Task DeleteRangeByIdAsync(List<int> idsRange);
 
-    bool IsPhoneExist(ContactDto contactDto);
+    Task<bool> IsPhoneExistAsync(ContactDto contactDto);
 }

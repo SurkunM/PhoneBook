@@ -77,7 +77,7 @@ public class PhoneBookController : ControllerBase
 
         try
         {
-           var isCreated = await _createContactHandler.HandleAsync(contactDto);
+            var isCreated = await _createContactHandler.HandleAsync(contactDto);
 
             if (!isCreated)
             {
@@ -137,14 +137,14 @@ public class PhoneBookController : ControllerBase
         {
             _logger.LogError("Передано значение id меньше нуля. id={id}", id);
 
-            BadRequest("Передано не корректное значение.");
+            return BadRequest("Передано некорректное значение.");
         }
 
         try
         {
-            var isDelete = await _deleteContactHandler.DeleteSingleContactHandleAsync(id);
+            var isDeleted = await _deleteContactHandler.DeleteSingleContactHandleAsync(id);
 
-            if (!isDelete)
+            if (!isDeleted)
             {
                 _logger.LogError("Ошибка! Контакт для удаления не найден. id={id}", id);
 
@@ -198,7 +198,7 @@ public class PhoneBookController : ControllerBase
         {
             _logger.LogError(ex, "Ошибка при экспорте в Excel");
 
-            return StatusCode(500, "Произошла ошибка при генерации файла");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Произошла ошибка при генерации файла");
         }
     }
 }

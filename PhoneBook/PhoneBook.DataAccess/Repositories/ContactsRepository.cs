@@ -19,6 +19,83 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    public async Task<PhoneBookPage> GetContactsAsync(GetContactsQueryParameters queryParameters)
+    {
+        var querySbSet = DbSet.AsNoTracking();
+
+        if (!string.IsNullOrEmpty(queryParameters.Term))
+        {
+            queryParameters.Term = queryParameters.Term.Trim();
+            querySbSet = querySbSet.Where(c => c.FirstName.Contains(queryParameters.Term)
+                || c.LastName.Contains(queryParameters.Term)
+                || c.Phone.Contains(queryParameters.Term));
+        }
+
+        var orderByExpression = CreateSortExpression(queryParameters.SortBy);
+
+        var orderedQuery = queryParameters.IsDescending
+            ? querySbSet.OrderByDescending(orderByExpression)
+            : querySbSet.OrderBy(orderByExpression);
+
+        var contactsDtoSorted = await orderedQuery
+            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+            .Take(queryParameters.PageSize)
+            .Select(c => new ContactDto
+            {
+                Id = c.Id,
+                FirstName = c.FirstName,
+                LastName = c.LastName,
+                Phone = c.Phone
+            })
+            .ToListAsync();
+
+        var totalCount = contactsDtoSorted.Count;
+
+        if (string.IsNullOrEmpty(queryParameters.Term))
+        {
+            totalCount = await DbSet.CountAsync();//попробовать с querySbSet
+        }
+
+        return new PhoneBookPage
+        {
+            Contacts = contactsDtoSorted,
+            TotalCount = totalCount
+        };
+    }
+
+    public Task<List<ContactDto>> GetContactsAsync()
+    {
+        return DbSet.AsNoTracking()
+            .Select(c => new ContactDto
+            {
+                Id = c.Id,
+                FirstName = c.FirstName,
+                LastName = c.LastName,
+                Phone = c.Phone
+            })
+            .ToListAsync();
+    }
+
+    public async Task DeleteRangeByIdAsync(List<int> idsRange)
+    {
+        var contacts = await DbSet
+            .AsNoTracking()
+            .Where(c => idsRange.Contains(c.Id))
+            .ToListAsync();
+
+        DbSet.RemoveRange(contacts);
+    }
+
+    public Task<Contact?> FindContactByIdAsync(int id)
+    {
+        return DbSet.FirstOrDefaultAsync(c => c.Id == id);
+    }
+
+    public Task<bool> IsPhoneExistAsync(ContactDto contactDto)
+    {
+        return DbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
+    }
+
     private static Expression<Func<Contact, object>> GetPropertyExpression(string propertyName)
     {
         var parameter = Expression.Parameter(typeof(Contact), "c");
@@ -44,82 +121,5 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
             return GetPropertyExpression("LastName");
         }
-    }
-
-    public async Task<PhoneBookPage> GetContactsAsync(GetContactsQueryParameters queryParameters)
-    {
-        var querySbSet = DbSet.AsNoTracking();
-
-        if (!string.IsNullOrEmpty(queryParameters.Term))
-        {
-            queryParameters.Term = queryParameters.Term.Trim();
-            querySbSet = querySbSet.Where(c => c.FirstName.Contains(queryParameters.Term)
-                || c.LastName.Contains(queryParameters.Term)
-                || c.Phone.Contains(queryParameters.Term));
-        }
-
-        var orderByExpression = CreateSortExpression(queryParameters.SortBy);
-
-        var orderedQuery = queryParameters.IsDescending
-            ? querySbSet.OrderByDescending(orderByExpression)
-            : querySbSet.OrderBy(orderByExpression);
-
-        var contactsDtoSorted = await orderedQuery
-            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
-            .Take(queryParameters.PageSize)
-            .Select((c) => new ContactDto
-            {
-                Id = c.Id,
-                FirstName = c.FirstName,
-                LastName = c.LastName,
-                Phone = c.Phone
-            })
-            .ToListAsync();
-
-        var totalCount = DbSet.Count();
-
-        if (!string.IsNullOrEmpty(queryParameters.Term))
-        {
-            totalCount = contactsDtoSorted.Count;
-        }
-
-        return new PhoneBookPage
-        {
-            Contacts = contactsDtoSorted,
-            TotalCount = totalCount
-        };
-    }
-
-    public Task<List<ContactDto>> GetContactsAsync()
-    {
-        return DbSet.AsNoTracking()
-            .Select(c => new ContactDto
-            {
-                Id = c.Id,
-                FirstName = c.FirstName,
-                LastName = c.LastName,
-                Phone = c.Phone
-            })
-            .ToListAsync();
-    }
-
-    public async Task DeleteRangeByIdAsync(List<int> rangeId)
-    {
-        var contacts = await DbSet
-            .AsNoTracking()
-            .Where(c => rangeId.Contains(c.Id))
-            .ToListAsync();
-
-        DbSet.RemoveRange(contacts);
-    }
-
-    public Task<Contact?> FindContactByIdAsync(int id)
-    {
-        return DbSet.FirstOrDefaultAsync(c => c.Id == id);
-    }
-
-    public bool IsPhoneExist(ContactDto contactDto)
-    {
-        return DbSet.Any(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
     }
 }

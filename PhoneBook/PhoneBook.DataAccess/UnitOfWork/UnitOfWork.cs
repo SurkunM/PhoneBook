@@ -59,7 +59,7 @@ public class UnitOfWork : IUnitOfWork
 
         if (_transaction is not null)
         {
-            _transaction.Commit();
+            await _transaction.CommitAsync();
             _transaction = null;
         }
     }

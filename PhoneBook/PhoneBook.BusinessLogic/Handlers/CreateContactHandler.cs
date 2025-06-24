@@ -26,7 +26,7 @@ public class CreateContactHandler
         {
             _unitOfWork.BeginTransaction();
 
-            if(contactsRepository.IsPhoneExist(contactDto))
+            if (await contactsRepository.IsPhoneExistAsync(contactDto))
             {
                 _logger.LogError("Ошибка! Попытка добавить номер телефона, который уже существует. {Phone}", contactDto.Phone);
 
