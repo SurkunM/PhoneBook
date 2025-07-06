@@ -21,46 +21,59 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 
     public async Task<PhoneBookPage> GetContactsAsync(GetContactsQueryParameters queryParameters)
     {
-        var querySbSet = DbSet.AsNoTracking();
+        await using var transaction = await DbContext.Database.BeginTransactionAsync();
 
-        if (!string.IsNullOrEmpty(queryParameters.Term))
+        try
         {
-            queryParameters.Term = queryParameters.Term.Trim();
-            querySbSet = querySbSet.Where(c => c.FirstName.Contains(queryParameters.Term)
-                || c.LastName.Contains(queryParameters.Term)
-                || c.Phone.Contains(queryParameters.Term));
-        }
+            var querySbSet = DbSet.AsNoTracking();
 
-        var orderByExpression = CreateSortExpression(queryParameters.SortBy);
-
-        var orderedQuery = queryParameters.IsDescending
-            ? querySbSet.OrderByDescending(orderByExpression)
-            : querySbSet.OrderBy(orderByExpression);
-
-        var contactsDtoSorted = await orderedQuery
-            .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
-            .Take(queryParameters.PageSize)
-            .Select(c => new ContactDto
+            if (!string.IsNullOrEmpty(queryParameters.Term))
             {
-                Id = c.Id,
-                FirstName = c.FirstName,
-                LastName = c.LastName,
-                Phone = c.Phone
-            })
-            .ToListAsync();
+                queryParameters.Term = queryParameters.Term.Trim();
+                querySbSet = querySbSet.Where(c => c.FirstName.Contains(queryParameters.Term)
+                    || c.LastName.Contains(queryParameters.Term)
+                    || c.Phone.Contains(queryParameters.Term));
+            }
 
-        var totalCount = contactsDtoSorted.Count;
+            var orderByExpression = CreateSortExpression(queryParameters.SortBy);
 
-        if (string.IsNullOrEmpty(queryParameters.Term))
-        {
-            totalCount = await DbSet.CountAsync();//попробовать с querySbSet
+            var orderedQuery = queryParameters.IsDescending
+                ? querySbSet.OrderByDescending(orderByExpression)
+                : querySbSet.OrderBy(orderByExpression);
+
+            var contactsDtoSorted = await orderedQuery
+                .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                .Take(queryParameters.PageSize)
+                .Select(c => new ContactDto
+                {
+                    Id = c.Id,
+                    FirstName = c.FirstName,
+                    LastName = c.LastName,
+                    Phone = c.Phone
+                })
+                .ToListAsync();
+
+            var totalCount = contactsDtoSorted.Count;
+
+            if (string.IsNullOrEmpty(queryParameters.Term))
+            {
+                totalCount = await DbSet.CountAsync();
+            }
+
+            await transaction.CommitAsync();
+
+            return new PhoneBookPage
+            {
+                Contacts = contactsDtoSorted,
+                TotalCount = totalCount
+            };
         }
-
-        return new PhoneBookPage
+        catch (Exception)
         {
-            Contacts = contactsDtoSorted,
-            TotalCount = totalCount
-        };
+            await transaction.RollbackAsync();
+
+            throw;
+        }
     }
 
     public Task<List<ContactDto>> GetContactsAsync()
