@@ -19,7 +19,7 @@ public class PhoneBookProgram
         builder.Services.AddDbContext<PhoneBookDbContext>(options =>
         {
             options
-                .UseSqlServer(builder.Configuration.GetConnectionString("PhoneBookConnection"))
+                .UseNpgsql(builder.Configuration.GetConnectionString("PhoneBookConnection"))
                 .UseLazyLoadingProxies();
         }, ServiceLifetime.Scoped, ServiceLifetime.Transient);
 
