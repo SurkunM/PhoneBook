@@ -14,6 +14,8 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
 {
     private readonly ILogger<ContactsRepository> _logger;
 
+    private const int MAX_CONTACTS_LIMMIT = 1000;
+
     public ContactsRepository(PhoneBookDbContext dbContext, ILogger<ContactsRepository> logger) : base(dbContext)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -107,6 +109,13 @@ public class ContactsRepository : BaseEfRepository<Contact>, IContactsRepository
     public Task<bool> IsPhoneExistAsync(ContactDto contactDto)
     {
         return DbSet.AnyAsync(c => c.Id != contactDto.Id && c.Phone == contactDto.Phone);
+    }
+
+    public async Task<bool> CheckContactLimitAsync()
+    {
+        var contactsCount = await DbSet.CountAsync();
+
+        return contactsCount < MAX_CONTACTS_LIMMIT;
     }
 
     private static Expression<Func<Contact, object>> GetPropertyExpression(string propertyName)
