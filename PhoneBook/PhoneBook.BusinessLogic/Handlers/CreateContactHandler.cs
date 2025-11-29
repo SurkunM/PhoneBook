@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PhoneBook.Contracts.Dto;
+using PhoneBook.Contracts.Exceptions;
 using PhoneBook.Contracts.Extensions;
 using PhoneBook.Contracts.IRepositories;
 using PhoneBook.Contracts.IUnitOfWork;
@@ -18,7 +19,7 @@ public class CreateContactHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(ContactDto contactDto)
+    public async Task HandleAsync(ContactDto contactDto)
     {
         var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
 
@@ -26,20 +27,19 @@ public class CreateContactHandler
         {
             _unitOfWork.BeginTransaction();
 
+            if (!await contactsRepository.CheckContactLimitAsync())
+            {
+                throw new ContactsLimitException("Превышен лимит контактов");
+            }
+
             if (await contactsRepository.IsPhoneExistAsync(contactDto))
             {
-                _logger.LogError("Ошибка! Попытка добавить номер телефона, который уже существует. {Phone}", contactDto.Phone);
-
-                _unitOfWork.RollbackTransaction();
-
-                return false;
+                throw new DuplicatePhoneException("Контакт с таким номером уже существует");
             }
 
             await contactsRepository.CreateAsync(contactDto.ToModel());
 
             await _unitOfWork.SaveAsync();
-
-            return true;
         }
         catch (Exception ex)
         {

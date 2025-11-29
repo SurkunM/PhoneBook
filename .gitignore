@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /PhoneBook/PhoneBook/appsettings.json
+/PhoneBook/PhoneBook/frontend/public/favicon.ico

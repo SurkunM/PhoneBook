@@ -7,6 +7,7 @@ using PhoneBook.DataAccess;
 using PhoneBook.DataAccess.Repositories;
 using PhoneBook.DataAccess.UnitOfWork;
 using PhoneBook.Jobs;
+using PhoneBook.Middleware;
 
 namespace PhoneBook;
 
@@ -72,6 +73,7 @@ public class PhoneBookProgram
         app.UseStaticFiles();
 
         app.UseRouting();
+        app.UseMiddleware<ExceptionMiddleware>();
 
         app.UseAuthorization();
 

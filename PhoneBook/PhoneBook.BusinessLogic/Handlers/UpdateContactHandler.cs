@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using PhoneBook.Contracts.Dto;
+using PhoneBook.Contracts.Exceptions;
 using PhoneBook.Contracts.Extensions;
 using PhoneBook.Contracts.IRepositories;
 using PhoneBook.Contracts.IUnitOfWork;
@@ -18,7 +19,7 @@ public class UpdateContactHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(ContactDto contactDto)
+    public async Task HandleAsync(ContactDto contactDto)
     {
         var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
 
@@ -28,18 +29,12 @@ public class UpdateContactHandler
 
             if (await contactsRepository.IsPhoneExistAsync(contactDto))
             {
-                _logger.LogError("Ошибка! Попытка добавить номер телефона, который уже существует. {Phone}", contactDto.Phone);
-
-                _unitOfWork.RollbackTransaction();
-
-                return false;
+                throw new DuplicatePhoneException("Контакт с таким номером уже существует");
             }
 
             contactsRepository.Update(contactDto.ToModel());
 
             await _unitOfWork.SaveAsync();
-
-            return true;
         }
         catch (Exception ex)
         {

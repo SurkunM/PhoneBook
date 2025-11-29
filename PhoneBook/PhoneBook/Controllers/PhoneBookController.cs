@@ -75,23 +75,10 @@ public class PhoneBookController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        try
-        {
-            var isCreated = await _createContactHandler.HandleAsync(contactDto);
+        await _createContactHandler.HandleAsync(contactDto);
 
-            if (!isCreated)
-            {
-                return BadRequest("Ошибка! Контакт с таким номером уже существует.");
-            }
 
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка! Контакт не создан.");
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
-        }
+        return NoContent();
     }
 
     [HttpPost]
@@ -111,23 +98,9 @@ public class PhoneBookController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        try
-        {
-            var isUpdated = await _updateContactHandler.HandleAsync(contactDto);
+        await _updateContactHandler.HandleAsync(contactDto);
 
-            if (!isUpdated)
-            {
-                return BadRequest("Ошибка! Контакт с таким номером уже существует.");
-            }
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка! Контакт не изменен.");
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
-        }
+        return NoContent();
     }
 
     [HttpDelete]
@@ -140,25 +113,9 @@ public class PhoneBookController : ControllerBase
             return BadRequest("Передано некорректное значение.");
         }
 
-        try
-        {
-            var isDeleted = await _deleteContactHandler.DeleteSingleContactHandleAsync(id);
+        await _deleteContactHandler.DeleteSingleContactHandleAsync(id);
 
-            if (!isDeleted)
-            {
-                _logger.LogError("Ошибка! Контакт для удаления не найден. id={id}", id);
-
-                return BadRequest("Контакт для удаления не найден.");
-            }
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка! Удаление контакта не выполнено. id={id}", id);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
-        }
+        return NoContent();
     }
 
     [HttpDelete]
@@ -171,34 +128,16 @@ public class PhoneBookController : ControllerBase
             return BadRequest("Не переданы данные для удаления.");
         }
 
-        try
-        {
-            await _deleteContactHandler.DeleteAllSelectedContactHandleAsync(selectedContactsId);
+        await _deleteContactHandler.DeleteAllSelectedContactHandleAsync(selectedContactsId);
 
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка! Удаление выбранных контактов не выполнено.");
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
-        }
+        return NoContent();
     }
 
     [HttpGet]
     public async Task<IActionResult> ExportToExcel()
     {
-        try
-        {
-            var memoryStream = await _generateContactsExcelHandler.ExcelGenerateHandleAsync();
+        var memoryStream = await _generateContactsExcelHandler.ExcelGenerateHandleAsync();
 
-            return _generateContactsExcelHandler.CreateExcelFileResult(memoryStream, $"contacts_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Ошибка при экспорте в Excel");
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Произошла ошибка при генерации файла");
-        }
+        return _generateContactsExcelHandler.CreateExcelFileResult(memoryStream, $"contacts_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
     }
 }

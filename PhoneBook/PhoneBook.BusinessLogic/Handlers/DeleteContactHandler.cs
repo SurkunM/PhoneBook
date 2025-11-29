@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PhoneBook.Contracts.Exceptions;
 using PhoneBook.Contracts.IRepositories;
 using PhoneBook.Contracts.IUnitOfWork;
 
@@ -16,7 +17,7 @@ public class DeleteContactHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> DeleteSingleContactHandleAsync(int id)
+    public async Task DeleteSingleContactHandleAsync(int id)
     {
         var contactsRepository = _unitOfWork.GetRepository<IContactsRepository>();
 
@@ -24,22 +25,10 @@ public class DeleteContactHandler
         {
             _unitOfWork.BeginTransaction();
 
-            var contact = await contactsRepository.FindContactByIdAsync(id);
-
-            if (contact is null)
-            {
-                _logger.LogError("Не удалось найти контакт с id={id}", id);
-
-                _unitOfWork.RollbackTransaction();
-
-                return false;
-            }
-
+            var contact = await contactsRepository.FindContactByIdAsync(id) ?? throw new ContactNotFoundException("Не удалось найти контакт");
             contactsRepository.Delete(contact);
 
             await _unitOfWork.SaveAsync();
-
-            return true;
         }
         catch (Exception ex)
         {
