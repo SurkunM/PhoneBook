@@ -108,8 +108,8 @@
                 }
             },
 
-            setExistPhoneInvalid() {
-                this.errors.phone = "Номер телефона уже существует";
+            setExistPhoneInvalid(message) {
+                this.errors.phone = message;
             },
 
             submitForm() {
@@ -133,7 +133,7 @@
                             this.checkFieldsIsvalid(createdContact);
                         }
                         else if (error.response?.status === 409) {
-                            this.setExistPhoneInvalid();
+                            this.setExistPhoneInvalid(error.response.data.error);
                         }
                     });
             },
