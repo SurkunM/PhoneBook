@@ -20,8 +20,4 @@
 		<ProjectReference Include="..\PhoneBook.Contracts\PhoneBook.Contracts.csproj" />
 		<ProjectReference Include="..\PhoneBook.DataAccess\PhoneBook.DataAccess.csproj" />
 	</ItemGroup>
-
-	<Target Name="CustomActionBeforePublish" BeforeTargets="BeforePublish">
-		<Exec WorkingDirectory="frontend" Command="npm run build" />
-	</Target>
 </Project>
