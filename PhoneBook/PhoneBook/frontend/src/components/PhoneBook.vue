@@ -6,12 +6,6 @@
         </h2>
     </v-card-title>
 
-    <v-progress-linear v-if="isLoading"
-                       indeterminate
-                       color="primary"
-                       height="4">
-    </v-progress-linear>
-
     <v-snackbar v-model="isShowSuccessAlert"
                 :timeout="2000"
                 color="success">
